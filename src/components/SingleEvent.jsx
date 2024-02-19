@@ -67,7 +67,7 @@ export default function singleEvent({ userType }) {
   const renderReviewerButtons = () => {
     if (userType === "admin" || userType === "reviewer") {
       return (
-        <Link to={`/reviewer-dashboard/${id}/users`}>
+        <Link to={`/${userType}-dashboard/${id}/users`}>
           <button className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md">
             View Users
           </button>
