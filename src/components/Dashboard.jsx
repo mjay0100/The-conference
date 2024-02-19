@@ -54,7 +54,7 @@ export default function DashboardPage({ userType }) {
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-lg text-gray-300">
-            {userType !== "user " && <p>Explore and manage all events.</p>}
+            {userType !== "user " && <>Explore and manage all events.</>}
           </p>
         </div>
       </header>
