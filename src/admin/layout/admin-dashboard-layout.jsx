@@ -1,10 +1,11 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
-import { UserButton, useSession } from "@clerk/clerk-react";
+// import { UserButton, useSession } from "@clerk/clerk-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { checkUserRole } from "../../utils/deleteEventFunction";
+import { useGlobalContext } from "../../context";
 
 const navigation = [
   { name: "Admin Dashboard", href: "/admin-dashboard", role: "admin" },
@@ -30,11 +31,11 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 export default function DashboardLayout() {
-  const { session } = useSession();
-  const userRole = checkUserRole(session);
+  // const { session } = useSession();
+  // const userRole = checkUserRole(session);
   const { pathname } = useLocation();
   const [activeLink, setActiveLink] = useState(pathname);
-
+  const { user } = useGlobalContext();
   return (
     <>
       <div className="min-h-full ">
@@ -55,26 +56,24 @@ export default function DashboardLayout() {
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
-                        {navigation.map((item) =>
-                          item.role === "admin" && userRole === "org:admin" ? (
-                            <Link
-                              key={item.name}
-                              to={item.href}
-                              className={classNames(
-                                item.href === activeLink
-                                  ? "bg-[#003366] text-white"
-                                  : "text-gray-300 hover:bg-[#003366] hover:text-white",
-                                "rounded-md px-3 py-2 text-sm font-medium"
-                              )}
-                              aria-current={
-                                item.href === activeLink ? "page" : undefined
-                              }
-                              onClick={() => setActiveLink(item.href)}
-                            >
-                              {item.name}
-                            </Link>
-                          ) : null
-                        )}
+                        {navigation.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={classNames(
+                              item.href === activeLink
+                                ? "bg-[#003366] text-white"
+                                : "text-gray-300 hover:bg-[#003366] hover:text-white",
+                              "rounded-md px-3 py-2 text-sm font-medium"
+                            )}
+                            aria-current={
+                              item.href === activeLink ? "page" : undefined
+                            }
+                            onClick={() => setActiveLink(item.href)}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -82,10 +81,13 @@ export default function DashboardLayout() {
                     <div className="ml-4 flex items-center md:ml-6">
                       <div className="relative ml-3">
                         <div className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                          <UserButton
-                            afterSignOutUrl="/"
-                            className="h-8 w-8 rounded-full"
-                          />
+                          <Link to="/admin-dashboard/profile">
+                            <img
+                              src={user.photoURL}
+                              className="w-8 rounded-full"
+                              alt={user.displayName}
+                            />
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -112,9 +114,7 @@ export default function DashboardLayout() {
               <Disclosure.Panel className="md:hidden">
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
-                    <div className="flex-shrink-0">
-                      <UserButton className="h-10 w-10 rounded-full" alt="" />
-                    </div>
+                    <div className="flex-shrink-0"></div>
                   </div>
                   <div className="mt-3 space-y-1 px-2">
                     {userNavigation.map((item) => (

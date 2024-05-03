@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut } from "@clerk/clerk-react";
+// import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, Popover } from "@headlessui/react";
@@ -41,22 +41,22 @@ const Navbar = () => {
             >
               Home
             </Link>
-            <SignedIn>
-              <Link
-                to="/admin-dashboard"
-                className="text-sm font-semibold leading-6 text-gray-900"
-              >
-                dashboard
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <Link
-                to="/sign-in"
-                className="text-sm font-semibold leading-6 text-gray-900"
-              >
-                Sign in
-              </Link>
-            </SignedOut>
+            {/* <SignedIn> */}
+            {/* <Link
+              to="/admin-dashboard"
+              className="text-sm font-semibold leading-6 text-gray-900"
+            >
+              dashboard
+            </Link> */}
+            {/* </SignedIn> */}
+            {/* <SignedOut> */}
+            <Link
+              to="/sign-in"
+              className="text-sm font-semibold leading-6 text-gray-900"
+            >
+              Sign in
+            </Link>
+            {/* </SignedOut> */}
           </Popover.Group>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <Link
@@ -106,14 +106,14 @@ const Navbar = () => {
                   </Link>
                 </div>
                 <div className="space-y-2 py-6">
-                  <SignedOut>
-                    <Link
-                      to="/sign-in"
-                      className="text-sm font-semibold leading-6 text-gray-900"
-                    >
-                      Sign in
-                    </Link>
-                  </SignedOut>
+                  {/* <SignedOut> */}
+                  <Link
+                    to="/sign-in"
+                    className="text-sm font-semibold leading-6 text-gray-900"
+                  >
+                    Sign in
+                  </Link>
+                  {/* </SignedOut> */}
                 </div>
                 <div className="py-6">
                   <Link

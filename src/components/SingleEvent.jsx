@@ -132,6 +132,9 @@ export default function singleEvent({ userType }) {
           <div className="flex items-center mb-4">
             <p className="text-gray-700 font-semibold">Date: {event.date}</p>
           </div>
+          <div className="flex items-center mb-4">
+            <p className="text-gray-700 font-semibold">Event ID: {event.id}</p>
+          </div>
           <p className="text-gray-700 mb-8 font-semibold">
             {event.description}
           </p>

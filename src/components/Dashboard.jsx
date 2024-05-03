@@ -1,7 +1,6 @@
-/* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
-import Loading from "../components/Loading";
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 import {
   collection,
   getDocs,
@@ -11,10 +10,12 @@ import {
 } from "firebase/firestore";
 import { database } from "../../firebase";
 
+// eslint-disable-next-line react/prop-types
 export default function DashboardPage({ userType }) {
-  console.log("Koca: userType ", userType);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 3; // Change this value to adjust the number of events per page
 
   useEffect(() => {
     const eventCollection = collection(database, "events");
@@ -34,6 +35,7 @@ export default function DashboardPage({ userType }) {
           })
         );
         setEvents(eventsData);
+        // console.log("Koca: eventsData ", eventsData);
         setLoading(false);
       },
       (error) => {
@@ -48,6 +50,15 @@ export default function DashboardPage({ userType }) {
       }
     };
   }, []);
+
+  // Logic to calculate pagination
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <>
       <header className="bg-gradient-to-r from-teal-500 to-teal-700 shadow-md text-white">
@@ -59,11 +70,11 @@ export default function DashboardPage({ userType }) {
         </div>
       </header>
 
-      <div className="container mx-auto mt-8">
+      <div className="w-4/6 mx-auto mt-8">
         {loading && <Loading />}
 
         <div className="grid grid-cols-1 md:grid-cols-2 text-center gap-8">
-          {events.map((event) => (
+          {currentEvents.map((event) => (
             <div
               key={event.id}
               className="w-full bg-white rounded-md shadow-md overflow-hidden capitalize"
@@ -73,10 +84,10 @@ export default function DashboardPage({ userType }) {
                 <p className="text-gray-700">
                   <span className="font-bold">Date:</span> {event.date}
                 </p>
-                <p className="text-gray-700">
+                {/* <p className="text-gray-700">
                   <span className="font-bold">Number of Participants:</span>{" "}
                   {event.totalParticipants}
-                </p>
+                </p> */}
                 <p className="text-gray-700">
                   <span className="font-bold">Attendees:</span>{" "}
                   {event.attendeesCount}
@@ -99,6 +110,27 @@ export default function DashboardPage({ userType }) {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Pagination */}
+        <div className="pagination mt-8 flex justify-center">
+          <ul className="flex">
+            {Array.from(
+              { length: Math.ceil(events.length / eventsPerPage) },
+              (_, i) => (
+                <li key={i}>
+                  <button
+                    onClick={() => paginate(i + 1)}
+                    className={`mx-1 px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-teal-500 hover:text-white focus:outline-none transition-colors duration-200 ${
+                      currentPage === i + 1 ? "bg-teal-500" : ""
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
         </div>
       </div>
     </>

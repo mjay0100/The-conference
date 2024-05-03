@@ -1,4 +1,4 @@
-import { SignedIn } from "@clerk/clerk-react";
+// import { SignedIn } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 
 export default function IndexPage() {

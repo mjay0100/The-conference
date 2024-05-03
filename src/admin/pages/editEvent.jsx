@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-unused-vars */
-import { useUser } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useNavigation, useParams } from "react-router-dom";
 import { database, storage, ref } from "../../../firebase";
@@ -127,6 +127,14 @@ const editEvent = () => {
         return;
       }
 
+      // Ensure subThemes is always a string
+      let subThemesArray = formData.subThemes;
+      if (typeof formData.subThemes === "string") {
+        // Split subThemes by commas and trim whitespace
+        subThemesArray = formData.subThemes
+          .split(",")
+          .map((subTheme) => subTheme.trim());
+      }
       // Update the event data in Firestore
       await updateDoc(eventDocRef, {
         title: formData.title,
@@ -135,9 +143,7 @@ const editEvent = () => {
         date: formData.date,
         totalParticipants: formData.totalParticipants,
         theme: formData.theme, // Add theme field
-        subThemes: formData.subThemes
-          .split(",")
-          .map((subTheme) => subTheme.trim()), // Split subThemes by commas and trim whitespace
+        subThemes: subThemesArray,
         keynoteSpeaker: formData.keynoteSpeaker,
         // Add other fields as needed
       });
@@ -153,6 +159,7 @@ const editEvent = () => {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div>
       <div>

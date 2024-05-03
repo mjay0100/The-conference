@@ -1,64 +1,54 @@
-// /* eslint-disable react/prop-types */
-// /* eslint-disable react-hooks/exhaustive-deps */
-// import React, { useState, useContext, useEffect } from "react";
-// import {
-//   collection,
-//   getDocs,
-//   orderBy,
-//   query,
-//   onSnapshot,
-// } from "firebase/firestore";
-// import { database } from "../firebase";
+/* eslint-disable react/prop-types */
+// UserContext.js
 
-// const AppContext = React.createContext();
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
-// const AppProvider = ({ children }) => {
-//   const [events, setEvents] = useState([]);
-//   const [loading, setLoading] = useState(true);
+const AppContext = createContext();
 
-//   //? display all events?
-//   useEffect(() => {
-//     const eventCollection = collection(database, "events");
-//     let unsubscribeEvents = onSnapshot(
-//       query(eventCollection, orderBy("createdAt", "desc")),
-//       async (snapshot) => {
-//         const eventsData = await Promise.all(
-//           snapshot.docs.map(async (doc) => {
-//             const data = doc.data();
-//             data.totalParticipants = +data.totalParticipants;
-//             const attendeesSnapshot = await getDocs(
-//               collection(database, "events", doc.id, "attendees")
-//             );
-//             data.attendeesCount = attendeesSnapshot.size;
-//             data.id = doc.id;
-//             return data;
-//           })
-//         );
-//         setEvents(eventsData);
-//         setLoading(false);
-//       },
-//       (error) => {
-//         console.error("Error fetching events:", error);
-//         setLoading(false);
-//       }
-//     );
+// export const useUser = () => useContext(UserContext);
 
-//     return () => {
-//       if (unsubscribeEvents) {
-//         unsubscribeEvents();
-//       }
-//     };
-//   }, []);
+const AppProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-//   return (
-//     <AppContext.Provider value={{ events, loading }}>
-//       {children}
-//     </AppContext.Provider>
-//   );
-// };
-// // make sure use
-// export const useGlobalContext = () => {
-//   return useContext(AppContext);
-// };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+    });
 
-// export { AppContext, AppProvider };
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    console.log(user); // Log user when it changes
+  }, [user]);
+
+  // const handleSignOut = async () => {
+  //   try {
+  //     await signOut(auth);
+  //     console.log("User signed out successfully");
+  //     // Redirect to login or home page after sign out
+  //     // navigate("/login"); // Uncomment this line if you use useNavigate for redirection
+  //     history("/");
+  //   } catch (error) {
+  //     console.error("Error signing out:", error);
+  //   }
+  // };
+
+  return (
+    <AppContext.Provider value={{ user }}>
+      {!loading && children}
+    </AppContext.Provider>
+  );
+};
+// make sure use
+export const useGlobalContext = () => {
+  return useContext(AppContext);
+};
+
+export { AppContext, AppProvider };

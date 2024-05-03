@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
-import { UserButton } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
+// import { UserButton } from "@clerk/clerk-react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-
+import { auth } from "../../../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useGlobalContext } from "../../context";
 const navigation = [
   { name: "User Dashboard", href: "/user-dashboard" },
   {
@@ -25,10 +27,11 @@ const userNavigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
+
 export default function DashboardLayout() {
   const { pathname } = useLocation();
   const [activeLink, setActiveLink] = useState(pathname);
-
+  const { user } = useGlobalContext();
   return (
     <>
       <div className="min-h-full ">
@@ -41,6 +44,7 @@ export default function DashboardLayout() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       {/* logo */}
+
                       <img
                         className="h-8 w-8"
                         src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
@@ -74,10 +78,13 @@ export default function DashboardLayout() {
                     <div className="ml-4 flex items-center md:ml-6">
                       <div className="relative ml-3">
                         <div className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                          <UserButton
-                            afterSignOutUrl="/"
-                            className="h-8 w-8 rounded-full"
-                          />
+                          <Link to="/user-dashboard/profile">
+                            <img
+                              src={user.photoURL}
+                              className="w-8 rounded-full"
+                              alt={user.displayName}
+                            />
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -105,7 +112,7 @@ export default function DashboardLayout() {
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <UserButton className="h-10 w-10 rounded-full" alt="" />
+                      {/* <UserButton className="h-10 w-10 rounded-full" alt="" /> */}
                     </div>
                   </div>
                   <div className="mt-3 space-y-1 px-2">

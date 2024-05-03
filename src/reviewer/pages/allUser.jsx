@@ -1,17 +1,19 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useState } from "react";
 import {
   collection,
   doc,
   getDoc,
   getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { database } from "../../../firebase";
 import Loading from "../../components/Loading";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
 import { ToastContainer, toast } from "react-toastify";
+import { useGlobalContext } from "../../context";
+
 const toastConfig = {
   position: "bottom-center",
   autoClose: 2000,
@@ -22,91 +24,78 @@ const toastConfig = {
   progress: undefined,
   theme: "light",
 };
+
 const AllUser = () => {
   const [usersWithAbstract, setUsersWithAbstract] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [comment, setComment] = useState(""); // State to store the comment
+  const { user } = useGlobalContext();
   const { id } = useParams();
-  const { user } = useUser();
   const navigate = useNavigate();
-  const handleGoBack = () => {
-    // Navigate to the previous page
-    navigate(-1);
+
+  const handleOpenModal = (user, isEdit = false) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+    if (isEdit) {
+      // Prefill the comment in case of edit
+      setComment(user.reviewerComment);
+    } else {
+      // Clear the comment field if it's not an edit
+      setComment("");
+    }
   };
-  async function getUsers() {
+
+  const handleCloseModal = () => {
+    setSelectedUser(null); // Reset selected user
+    setIsModalOpen(false);
+    setComment(""); // Clear the comment field when closing the modal
+  };
+
+  const handleSaveComment = async () => {
     try {
-      const attendeesCollection = collection(
+      const userRef = doc(
         database,
         "events",
         id,
-        "attendees"
+        "attendees",
+        selectedUser.attendeeId
       );
-      const attendeesSnapshot = await getDocs(attendeesCollection);
-      const usersData = attendeesSnapshot.docs.map((doc) => {
-        const userData = doc.data();
-        userData.attendeeId = doc.id; // Set userId based on the user id
-        userData.imageUrl = user.imageUrl; // Replace with actual path in your user object
-
-        return userData;
-      });
-
-      const usersWithAbstract = usersData.filter(
-        (user) => user.role === "presenter" && user.fileUrl
-      );
-
-      setUsersWithAbstract(usersWithAbstract);
-      setLoading(false);
+      await updateDoc(userRef, { reviewerComment: comment }); // Save the comment to Firestore
+      toast.success("Comment added successfully!", toastConfig);
+      handleCloseModal(); // Close the modal after saving the comment
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error adding comment:", error);
+      toast.error("Error adding comment. Please try again.");
     }
-  }
+  };
+
+  const handleGoBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
 
   useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const usersQuery = query(
+          collection(database, "events", id, "attendees"),
+          where("reviewerId", "==", user.uid)
+        );
+        const querySnapshot = await getDocs(usersQuery);
+        const usersWithAbstract = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          attendeeId: doc.id,
+        }));
+        setUsersWithAbstract(usersWithAbstract);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching assigned users:", error);
+      }
+    };
+
     getUsers();
-  }, []);
-
-  const handleApproval = async (attendeeId) => {
-    console.log("Koca: attendeeId ", attendeeId);
-    try {
-      const userRef = doc(database, "events", id, "attendees", attendeeId);
-      const userDoc = await getDoc(userRef);
-
-      if (!userDoc.exists()) {
-        console.error("Document does not exist:", attendeeId);
-        return;
-      }
-
-      await updateDoc(userRef, { status: "approved" });
-
-      toast.success("User approved successfully!", toastConfig);
-
-      getUsers();
-    } catch (error) {
-      console.error("Error approving user:", error);
-      toast.error("Error approving user. Please try again.");
-    }
-  };
-
-  const handleDenial = async (attendeeId) => {
-    console.log("Koca: attendeeId ", attendeeId);
-    try {
-      const userRef = doc(database, "events", id, "attendees", attendeeId);
-      const userDoc = await getDoc(userRef);
-
-      if (!userDoc.exists()) {
-        console.error("Document does not exist:", attendeeId);
-        return;
-      }
-
-      await updateDoc(userRef, { status: "denied" });
-
-      toast.error("User denied successfully!", toastConfig);
-
-      getUsers();
-    } catch (error) {
-      console.error("Error denying user:", error);
-      toast.error("Error denying user. Please try again.");
-    }
-  };
+  }, [id, user.uid]);
 
   return (
     <div className="container mx-auto mt-8 capitalize">
@@ -125,6 +114,8 @@ const AllUser = () => {
                     <th className="py-3 px-6 text-left">Role</th>
                     <th className="py-3 px-6 text-left">City</th>
                     <th className="py-3 px-6 text-left">Abstract</th>
+                    <th className="py-3 px-6 text-left">Abstract Title</th>
+                    <th className="py-3 px-6 text-left">Reviewer Comment</th>
                     <th className="py-3 px-6 text-left">Action</th>
                   </tr>
                 </thead>
@@ -146,20 +137,39 @@ const AllUser = () => {
                           Download Abstract
                         </a>
                       </td>
+                      <td className="py-4 px-6">{user.abstractTitle}</td>
+                      <td className="py-4 px-6">
+                        {user.reviewerComment ? (
+                          <span>{user.reviewerComment}</span>
+                        ) : (
+                          <span className="text-red-500 font-bold">
+                            Not yet reviewed
+                          </span>
+                        )}
+                      </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center">
-                          <button
-                            onClick={() => handleApproval(user.attendeeId)}
-                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleDenial(user.attendeeId)}
-                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                          >
-                            Deny
-                          </button>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              {user.reviewerComment ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenModal(user, true)} // Pass true to indicate it's an edit
+                                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                                >
+                                  Edit Comment
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenModal(user)} // Open modal for adding comment
+                                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-green-300"
+                                >
+                                  Add Comment
+                                </button>
+                              )}
+                            </div>
+                          </td>
                         </div>
                       </td>
                     </tr>
@@ -170,7 +180,7 @@ const AllUser = () => {
           ) : (
             <div className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
               <p className="text-lg text-indigo-600 font-bold mb-4">
-                No users with abstracts .
+                No users with abstracts assigned to you.
               </p>
               <button
                 onClick={handleGoBack}
@@ -180,6 +190,44 @@ const AllUser = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal for adding comment */}
+      {selectedUser && (
+        <div className={`modal ${isModalOpen ? "is-active" : ""}`}>
+          <div
+            className="modal-background flex justify-center bg-black  "
+            onClick={handleCloseModal}
+          ></div>
+          <div className="modal-content bg-white w-full md:w-[80%] absolute top-[10rem] p-6 rounded-md shadow-md z-50">
+            <h2 className="text-2xl font-bold mb-4">
+              {comment ? "Edit Comment" : "Add Comment"} for{" "}
+              {selectedUser.firstName} {selectedUser.lastName} -{" "}
+              {selectedUser.abstractTitle}
+            </h2>
+            <p className="text-gray-600">ID: {selectedUser.attendeeId}</p>
+            <textarea
+              className="w-full h-32 px-3 py-2 mb-4 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              placeholder="Enter your comment..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end">
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                onClick={handleSaveComment}
+              >
+                Save
+              </button>
+              <button
+                className="ml-2 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                onClick={handleCloseModal}
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

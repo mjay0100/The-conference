@@ -1,63 +1,67 @@
-/* eslint-disable no-unused-vars */
-import { useEffect } from "react";
-import { useAuth, useOrganizationList, useSession } from "@clerk/clerk-react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, database } from "../../firebase"; // Ensure this path matches where your Firebase auth instance is initialized
 import Loading from "../components/Loading";
-import { checkUserRole } from "../utils/deleteEventFunction";
-import { useCallback } from "react";
+import { Outlet } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
 
 const CheckRole = () => {
-  const { session } = useSession();
-  const { isLoaded, userMemberships } = useOrganizationList({
-    userMemberships: {
-      infinite: true,
-    },
-  });
-  // console.log("Koca: userMemberships ", userMemberships.data[0].role);
-  const userRole = checkUserRole(session);
-  // console.log("Koca: userRole ", userRole);
-
-  const { userId } = useAuth();
+  const [authReady, setAuthReady] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
-  const checkAdminStatus = useCallback(
-    (role) => {
-      if (isLoaded) {
-        // Check if the user's role is admin
-        if (role === "org:admin") {
-          navigate("/admin-dashboard");
-        } else if (role === "org:reviewer") {
-          navigate("/reviewer-dashboard");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // console.log("Koca: user ", user);
+      if (user) {
+        // User is signed in
+        // Fetch user role from Firestore
+        const userDoc = await getDoc(doc(database, "users", user.uid));
+
+        if (userDoc.exists()) {
+          const { role } = userDoc.data();
+          console.log("Koca: role ", role);
+          // console.log("Koca: role ", role);
+
+          setUserRole(role);
+          setAuthReady(true); // Set authReady to true when auth state is determined
+          // Redirect based on user role
+          switch (role) {
+            case "admin":
+              navigate("/admin-dashboard");
+              break;
+            case "reviewer":
+              navigate("/reviewer-dashboard");
+              break;
+            case "user":
+              navigate("/user-dashboard");
+              break;
+            default:
+              // Handle unknown roles
+              console.error("Unknown role:", role);
+              break;
+          }
         } else {
-          navigate("/user-dashboard");
+          console.error("User document not found");
+          // Handle case where user document doesn't exist
         }
+      } else {
+        // User is not signed in
+        setAuthReady(true); // Set authReady to true when auth state is determined
+        navigate("/"); // Redirect to home page
       }
-    },
-    [userRole]
-  );
+    });
 
-  useEffect(() => {
-    if (userMemberships.data && userMemberships.data.length > 0) {
-      checkAdminStatus(userRole);
-    }
-  }, [userRole, checkAdminStatus]); // Ensure useEffect runs when userMemberships.data changes
+    return () => unsubscribe(); // Cleanup function to unsubscribe from the auth state listener
+  }, []);
 
-  // Ensure that checkAdminStatus is called when isLoaded changes
-  useEffect(() => {
-    checkAdminStatus(userRole);
-  }, [checkAdminStatus]);
+  // Render loading indicator until auth state is determined
+  if (!authReady) {
+    return <Loading />;
+  }
 
-  useEffect(() => {
-    // Check if authentication information is loaded
-    if (isLoaded) {
-      // Check if the user is not authenticated
-      if (!userId) {
-        navigate("/sign-in");
-      }
-    }
-    // Add userId and isLoaded to the dependency array if necessary
-  }, [userId, isLoaded, navigate]);
-  if (!isLoaded) return <Loading />;
-
+  // Once auth state is determined, render the child routes
   return (
     <div>
       <Outlet />

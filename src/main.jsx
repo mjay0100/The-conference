@@ -2,13 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { ClerkProvider } from "@clerk/clerk-react";
+// import { ClerkProvider } from "@clerk/clerk-react";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+// const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key");
-}
+// if (!PUBLISHABLE_KEY) {
+//   throw new Error("Missing Publishable Key");
+// }
 
 //* Import main layout
 import RootLayout from "./layouts/root-layout";
@@ -53,8 +53,9 @@ import ReviewerDashboardLayout from "./reviewer/layout/reviewer-dashboard-layout
 
 //* layout to check for user role
 import CheckRole from "./components/CheckRole";
+import { UserProvider } from "./context/userContext";
 
-// import { AppProvider } from "./context";
+import { AppProvider } from "./context";
 
 const router = createBrowserRouter([
   {
@@ -157,10 +158,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      {/* <AppProvider> */}
+    {/* <ClerkProvider> */}
+    <AppProvider>
       <RouterProvider router={router} />
-      {/* </AppProvider> */}
-    </ClerkProvider>
+    </AppProvider>
+    {/* </ClerkProvider> */}
   </React.StrictMode>
 );
