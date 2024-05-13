@@ -5,11 +5,13 @@ import { auth, database } from "../../firebase"; // Ensure this path matches whe
 import Loading from "../components/Loading";
 import { Outlet } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
+import { useGlobalContext } from "../context";
 
 const CheckRole = () => {
   const [authReady, setAuthReady] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
+  const { user } = useGlobalContext();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -54,7 +56,7 @@ const CheckRole = () => {
     });
 
     return () => unsubscribe(); // Cleanup function to unsubscribe from the auth state listener
-  }, []);
+  }, [navigate]);
 
   // Render loading indicator until auth state is determined
   if (!authReady) {

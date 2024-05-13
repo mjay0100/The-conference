@@ -24,10 +24,6 @@ const AppProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    console.log(user); // Log user when it changes
-  }, [user]);
-
   // const handleSignOut = async () => {
   //   try {
   //     await signOut(auth);

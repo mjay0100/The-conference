@@ -61,6 +61,7 @@ const deleteEvent = async (id, navigate, setDeleting) => {
     }, 3000);
   } catch (error) {
     console.error("Error deleting document:", error);
+    setDeleting(false);
   }
 };
 export default deleteEvent;

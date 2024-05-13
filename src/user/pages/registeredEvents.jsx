@@ -6,11 +6,25 @@ import {
   where,
   getDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { database } from "../../../firebase";
 // import { useUser } from "@clerk/clerk-react";
 import Loading from "../../components/Loading";
 import { useGlobalContext } from "../../context";
+import { PaystackButton } from "react-paystack";
+import { toast, ToastContainer } from "react-toastify";
+
+const toastConfig = {
+  position: "bottom-center",
+  autoClose: 2000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: false,
+  draggable: false,
+  progress: undefined,
+  theme: "light",
+};
 
 const RegisteredEvents = () => {
   // const { user } = useUser();
@@ -21,10 +35,6 @@ const RegisteredEvents = () => {
   useEffect(() => {
     const fetchRegisteredEvents = async () => {
       try {
-        // if (!user) {
-        //   console.error("User ID not available.");
-        //   return;
-        // }
         setLoadingRegisteredEvents(true);
 
         // Fetch all events
@@ -49,6 +59,8 @@ const RegisteredEvents = () => {
               const status = attendeeDoc.data().abstractStatus;
               const paymentStatus = attendeeDoc.data().paymentStatus;
               const abstractTitle = attendeeDoc.data().abstractTitle;
+              const reviewerComment = attendeeDoc.data().reviewerComment;
+              console.log("Koca: reviewerComment ", reviewerComment);
               console.log("Koca: abstractTitle ", abstractTitle);
 
               // Fetch user role and event details concurrently
@@ -67,6 +79,7 @@ const RegisteredEvents = () => {
               const certId = userRoleSnapshot.docs[0]?.data().certificateId;
 
               const eventDetails = eventDetailsSnapshot.data();
+              console.log("Koca: eventDetails ", eventDetails);
 
               // Set status to "approved" if the user role is "participant"
               const updatedStatus =
@@ -80,6 +93,7 @@ const RegisteredEvents = () => {
                 certId,
                 paymentStatus,
                 abstractTitle,
+                reviewerComment,
               };
             }
 
@@ -107,9 +121,58 @@ const RegisteredEvents = () => {
   if (loadingRegisteredEvents) {
     return <Loading />;
   }
+  const handlePaymentClose = () => {
+    console.log("closed");
+    toast.error("Payment was cancelled", toastConfig);
+  };
+
+  const handlePaymentSuccess = async (reference, event) => {
+    console.log("Payment reference:", reference);
+    toast.success("Payment was successful", toastConfig);
+
+    // Reference to the attendees collection under the specific event
+    const attendeesRef = collection(database, "events", event.id, "attendees");
+
+    // Create a query to find the attendee document by user UID
+    const queryRef = query(attendeesRef, where("userId", "==", user.uid));
+
+    try {
+      const querySnapshot = await getDocs(queryRef);
+
+      // Check if we have found the attendee document
+      if (querySnapshot.empty) {
+        console.error("No attendee document found for user:", user.uid);
+        toast.error("No attendee found to update", toastConfig);
+        return;
+      }
+
+      // Assuming there's only one matching document for each user per event
+      const attendeeDoc = querySnapshot.docs[0];
+      const attendeeDocRef = attendeeDoc.ref;
+
+      // Update the Firestore document for the user's registration event
+      await updateDoc(attendeeDocRef, {
+        paymentStatus: "Paid",
+      });
+      console.log("Payment status updated in Firestore");
+
+      // Optionally, update local state to reflect payment status change
+      const updatedEvents = registeredEvents.map((e) => {
+        if (e.id === event.id) {
+          return { ...e, paymentStatus: "Paid" };
+        }
+        return e;
+      });
+      setRegisteredEvents(updatedEvents);
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      toast.error("Error updating payment status", toastConfig);
+    }
+  };
 
   return (
     <div className="mt-8 mx-auto container overflow-x-auto">
+      <ToastContainer />
       <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">
         Your Registered Events
       </h2>
@@ -129,6 +192,9 @@ const RegisteredEvents = () => {
                 <th className="py-3 px-6 text-left">Payment Status</th>
                 <th className="py-3 px-6 text-left">Certificate Id</th>
                 <th className="py-3 px-6 text-left">Abstract Title</th>
+                <th className="py-3 px-6 text-left">Pay Now</th>
+                <th className="py-3 px-6 text-left">Reviewer Comment</th>
+                <th className="py-3 px-6 text-left">Event Price</th>
               </tr>
             </thead>
             <tbody>
@@ -158,10 +224,49 @@ const RegisteredEvents = () => {
                   <td
                     className={`py-4 px-6 text-left font-bold text-green-600 `}
                   >
-                    {event.paymentStatus}
+                    <span
+                      className={
+                        event.paymentStatus === "Pending"
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }
+                    >
+                      {event.paymentStatus}
+                    </span>
                   </td>
                   <td className="py-4 px-6 text-left">{event.certId}</td>
                   <td className="py-4 px-6 text-left">{event.abstractTitle}</td>
+                  <td className="py-4 px-6 text-left">
+                    {event.paymentStatus === "Paid" ? (
+                      <span className="text-green-600 font-semibold">
+                        Event Paid For
+                      </span>
+                    ) : (event.userRole === "presenter" &&
+                        event.abstractStatus === "Approved") ||
+                      event.userRole === "participant" ? (
+                      <PaystackButton
+                        publicKey={import.meta.env.VITE_PAYSTACK_KEY} // Corrected the variable name
+                        email={user.email}
+                        amount={event.price * 100} // Assuming price is in Naira
+                        text="Pay Now"
+                        onSuccess={(reference) =>
+                          handlePaymentSuccess(reference, event)
+                        }
+                        onClose={handlePaymentClose}
+                        className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+                      />
+                    ) : (
+                      <span className="text-red-600">
+                        Paper not yet reviewed
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-4 px-6 text-left">
+                    {event.reviewerComment
+                      ? event.reviewerComment
+                      : "No Comment"}
+                  </td>
+                  <td className="py-4 px-6 text-left">{event.price}</td>
                 </tr>
               ))}
             </tbody>

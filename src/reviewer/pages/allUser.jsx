@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -13,6 +12,7 @@ import Loading from "../../components/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useGlobalContext } from "../../context";
+// import { Editor } from "@tinymce/tinymce-react";
 
 const toastConfig = {
   position: "bottom-center",
@@ -149,7 +149,7 @@ const AllUser = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center">
-                          <td className="py-4 px-6">
+                          <div className="py-4 px-6">
                             <div className="flex items-center">
                               {user.reviewerComment ? (
                                 <button
@@ -169,7 +169,7 @@ const AllUser = () => {
                                 </button>
                               )}
                             </div>
-                          </td>
+                          </div>
                         </div>
                       </td>
                     </tr>

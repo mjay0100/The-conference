@@ -36,6 +36,7 @@ import CreateEvent from "./admin/pages/createEvent";
 import EditEvent from "./admin/pages/editEvent";
 import AdminDashboard from "./admin/pages/admin-dashboard";
 // import AdminProfile from "./components/adminProfile";
+import { EventProvider } from "./admin/context/EventContext";
 
 //* import reviewer pages
 import ReviewerSingleEvent from "./reviewer/pages/singleEvent";
@@ -56,6 +57,11 @@ import CheckRole from "./components/CheckRole";
 import { UserProvider } from "./context/userContext";
 
 import { AppProvider } from "./context";
+import Presenters from "./admin/components/Presenters";
+import {
+  RegisterContext,
+  RegisterProvider,
+} from "./user/context/RegisterContext";
 
 const router = createBrowserRouter([
   {
@@ -95,8 +101,12 @@ const router = createBrowserRouter([
             element: <CreateEvent />,
           },
           {
-            path: "/admin-dashboard/:id/users",
-            element: <AllUser />,
+            path: "/admin-dashboard/:id/attendees",
+            element: (
+              <EventProvider>
+                <AllUser />
+              </EventProvider>
+            ),
           },
         ],
       },
@@ -119,7 +129,11 @@ const router = createBrowserRouter([
           },
           {
             path: "/user-dashboard/:id/register",
-            element: <RegisterForEvent />,
+            element: (
+              <RegisterProvider>
+                <RegisterForEvent />
+              </RegisterProvider>
+            ),
           },
           {
             path: "/user-dashboard/profile",
@@ -146,7 +160,7 @@ const router = createBrowserRouter([
             element: <Profile />,
           },
           {
-            path: "/reviewer-dashboard/:id/users",
+            path: "/reviewer-dashboard/:id/attendees",
             element: <ReviewerAllUser />,
           },
         ],
