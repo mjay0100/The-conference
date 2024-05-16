@@ -6,7 +6,7 @@ import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { checkUserRole } from "../../utils/deleteEventFunction";
 import { useGlobalContext } from "../../context";
-import Logo from "../../assets/NCRRD-LOGO 2.JPG";
+import Logo from "../assets/NCRRD-LOGO 2.JPG";
 
 const navigation = [
   { name: "Admin Dashboard", href: "/admin-dashboard", role: "admin" },
@@ -49,7 +49,11 @@ export default function DashboardLayout() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       {/* logo */}
-                      <img className="h-8 w-8" src={Logo} alt="Your Company" />
+                      <img
+                        className="h-8 w-8"
+                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                        alt="Your Company"
+                      />
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
