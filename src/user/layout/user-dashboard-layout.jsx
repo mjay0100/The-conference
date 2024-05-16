@@ -7,6 +7,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useGlobalContext } from "../../context";
+import Logo from "../../assets/NCRRD-LOGO 2.JPG";
 const navigation = [
   { name: "User Dashboard", href: "/user-dashboard" },
   {
@@ -46,8 +47,8 @@ export default function DashboardLayout() {
                       {/* logo */}
 
                       <img
-                        className="h-8 w-8"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                        className="h-8 w-8 bg-transparent"
+                        src={Logo}
                         alt="Your Company"
                       />
                     </div>

@@ -4,7 +4,7 @@ const RejectedAbstracts = () => {
   const { rejectedAbstracts } = useGlobalEventContext();
   return (
     <div>
-      {rejectedAbstracts.length > 0 && (
+      {rejectedAbstracts.length > 0 ? (
         <div>
           <h2 className="text-2xl font-bold mb-4">Rejected Abstracts</h2>
           <table className="min-w-full text-sm">
@@ -33,6 +33,10 @@ const RejectedAbstracts = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      ) : (
+        <div className="text-center text-gray-600">
+          <p>No rejected abstracts</p>
         </div>
       )}
     </div>

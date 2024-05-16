@@ -8,9 +8,11 @@ import { auth, database } from "../../firebase";
 import { setDoc, doc, getDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+
 function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signingUp, setSigningUp] = useState(false); // State to track sign-up process
   const navigate = useNavigate();
 
   const toastConfig = {
@@ -27,6 +29,7 @@ function SignUpPage() {
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     try {
+      setSigningUp(true); // Set signingUp state to true when sign-up process starts
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         toast.error("Please enter a valid email address.", toastConfig);
@@ -64,11 +67,14 @@ function SignUpPage() {
       } else {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
+    } finally {
+      setSigningUp(false); // Set signingUp state to false when sign-up process ends
     }
   };
 
   const handleGoogleSignUp = async () => {
     try {
+      setSigningUp(true); // Set signingUp state to true when sign-up process starts
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
 
@@ -92,6 +98,8 @@ function SignUpPage() {
         console.log(error);
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
+    } finally {
+      setSigningUp(false); // Set signingUp state to false when sign-up process ends
     }
   };
 
@@ -154,24 +162,22 @@ function SignUpPage() {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              disabled={signingUp} // Disable the button when signingUp is true
+              className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                signingUp ? "opacity-50 cursor-not-allowed" : "" // Apply opacity and cursor style when signingUp is true
+              }`}
             >
-              Sign Up
+              {signingUp ? "Signing Up..." : "Sign Up"}{" "}
+              {/* Show "Signing Up..." when signingUp is true */}
             </button>
           </div>
-
-          {/* Add a break and sign up with Google */}
-          {/* <div className="my-3 mb-3">
-            <p className="text-center text-sm my-2 text-gray-600">
-              Or sign up with
-            </p>
-          </div> */}
         </form>
 
         <div className="flex items-center justify-center  dark:bg-gray-800 mt-5">
           <button
             className="px-4 py-2  flex gap-2 b rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150 w-full justify-center"
             onClick={handleGoogleSignUp}
+            disabled={signingUp} // Disable the button when signingUp is true
           >
             <img
               className="w-6 h-6"

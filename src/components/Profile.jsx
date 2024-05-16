@@ -10,6 +10,7 @@ const UserProfile = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem("userRole");
       console.log("User signed out successfully");
       // Redirect to login or home page after sign out
       // navigate("/login"); // Uncomment this line if you use useNavigate for redirection

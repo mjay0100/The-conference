@@ -23,6 +23,7 @@ const toastConfig = {
 function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signingIn, setSigningIn] = useState(false); // State to track sign-in process
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +56,7 @@ function SignInPage() {
   const handleEmailSignIn = async (event) => {
     event.preventDefault();
     try {
+      setSigningIn(true); // Set signingIn state to true when sign-in process starts
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         toast.error("Please enter a valid email address.", toastConfig);
@@ -65,7 +67,7 @@ function SignInPage() {
           "Password must be at least 8 characters long.",
           toastConfig
         );
-        return; // Stop the function if the password is too short
+        return;
       }
 
       const userCredential = await signInWithEmailAndPassword(
@@ -85,11 +87,14 @@ function SignInPage() {
       } else {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
+    } finally {
+      setSigningIn(false); // Set signingIn state to false when sign-in process ends
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
+      setSigningIn(true); // Set signingIn state to true when sign-in process starts
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       await checkUserRoleAndRedirect(userCredential.user.uid);
@@ -101,6 +106,8 @@ function SignInPage() {
       } else {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
+    } finally {
+      setSigningIn(false); // Set signingIn state to false when sign-in process ends
     }
   };
 
@@ -165,22 +172,20 @@ function SignInPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                disabled={signingIn} // Disable the button when signingIn is true
+                className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                  signingIn ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                Sign in
+                {signingIn ? "Signing In..." : "Sign in"}
               </button>
             </div>
-            {/* <div className="mt-3 mb-3">
-              <hr className="border-gray-200" />
-              <p className="text-center text-sm my-2 text-gray-600">
-                Or sign in with
-              </p>
-            </div> */}
           </form>
           <div className="flex items-center justify-center  dark:bg-gray-800 mt-5">
             <button
               className="px-4 py-2  flex gap-2 b rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150 w-full justify-center"
               onClick={handleGoogleSignIn}
+              disabled={signingIn} // Disable the button when signingIn is true
             >
               <img
                 className="w-6 h-6"
