@@ -6,7 +6,6 @@ import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { checkUserRole } from "../../utils/deleteEventFunction";
 import { useGlobalContext } from "../../context";
-import Logo from "../assets/NCRRD-LOGO 2.JPG";
 
 const navigation = [
   { name: "Admin Dashboard", href: "/admin-dashboard", role: "admin" },
