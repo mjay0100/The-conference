@@ -1,12 +1,13 @@
-import Loading from "../../components/Loading";
 import { useEffect } from "react";
+import Loading from "../../components/Loading";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
-import { useGlobalEventContext } from "../context/EventContext";
+import { useGlobalAllUser } from "../context/AllUserContext";
 import Presenters from "../components/Presenters";
 import ShowParticipants from "../components/ShowParticipants";
 import AcceptedAbstracts from "../components/AcceptedAbstracts";
 import RejectedAbstracts from "../components/RejectedAbstracts";
+
 const AllUser = () => {
   const {
     loading,
@@ -22,7 +23,8 @@ const AllUser = () => {
     setShowPresenters,
     setShowAcceptedAbstracts,
     setShowRejectedAbstracts,
-  } = useGlobalEventContext();
+  } = useGlobalAllUser();
+
   const { id } = useParams();
 
   useEffect(() => {
@@ -30,12 +32,17 @@ const AllUser = () => {
     fetchReviewers();
     handleShowAcceptedAbstracts(id);
     handleShowRejectedAbstracts(id);
+    // Initialize default tab view
+    setShowParticipants(true);
+    setShowPresenters(false);
+    setShowAcceptedAbstracts(false);
+    setShowRejectedAbstracts(false);
   }, [id]);
 
   return (
-    <div className="container mx-auto mt-8 capitalize">
+    <div className="container w-5/6 mx-auto mt-8 capitalize">
       <ToastContainer />
-      <div className="flex justify-center space-x-4">
+      <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-center space-4">
         <button
           onClick={() => {
             setShowParticipants(false);
@@ -85,25 +92,11 @@ const AllUser = () => {
       </div>
       {loading && <Loading />}
       {!loading && (
-        <div>
-          <div>
-            {/* presenters */}
-            {showPresenters && <Presenters id={id} />}
-          </div>
-          <div className="container mt-5">
-            {/* participants */}
-            {showParticipants && <ShowParticipants />}
-          </div>
-
-          <div>
-            {/* accepted abstracts */}
-            {showAcceptedAbstracts && <AcceptedAbstracts />}
-          </div>
-
-          <div>
-            {/* rejected abstracts */}
-            {showRejectedAbstracts && <RejectedAbstracts />}
-          </div>
+        <div className="mt-6">
+          {showPresenters && <Presenters id={id} />}
+          {showParticipants && <ShowParticipants />}
+          {showAcceptedAbstracts && <AcceptedAbstracts />}
+          {showRejectedAbstracts && <RejectedAbstracts />}
         </div>
       )}
     </div>

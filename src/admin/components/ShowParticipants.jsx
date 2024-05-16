@@ -1,13 +1,13 @@
-import { useGlobalEventContext } from "../context/EventContext";
+import { useGlobalAllUser } from "../context/AllUserContext";
 
 const ShowParticipants = () => {
-  const { usersWithoutAbstract } = useGlobalEventContext();
+  const { usersWithoutAbstract } = useGlobalAllUser();
   return (
-    <div>
+    <>
       {
-        <div>
+        <>
           {usersWithoutAbstract.length > 0 ? (
-            <div>
+            <div className="overflow-x-auto">
               <h2 className="text-2xl font-bold mb-4">
                 Users without Abstracts
               </h2>
@@ -37,9 +37,9 @@ const ShowParticipants = () => {
               <p>No participants</p>
             </div>
           )}
-        </div>
+        </>
       }
-    </div>
+    </>
   );
 };
 

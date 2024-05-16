@@ -36,7 +36,7 @@ import CreateEvent from "./admin/pages/createEvent";
 import EditEvent from "./admin/pages/editEvent";
 import AdminDashboard from "./admin/pages/admin-dashboard";
 // import AdminProfile from "./components/adminProfile";
-import { EventProvider } from "./admin/context/EventContext";
+import { AllUserProvider } from "./admin/context/AllUserContext";
 
 //* import reviewer pages
 import ReviewerSingleEvent from "./reviewer/pages/singleEvent";
@@ -103,9 +103,9 @@ const router = createBrowserRouter([
           {
             path: "/admin-dashboard/:id/attendees",
             element: (
-              <EventProvider>
+              <AllUserProvider>
                 <AllUser />
-              </EventProvider>
+              </AllUserProvider>
             ),
           },
         ],

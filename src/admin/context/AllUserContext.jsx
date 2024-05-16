@@ -1,5 +1,3 @@
-// EventContext.js
-
 import { createContext, useContext, useState } from "react";
 import { database } from "../../../firebase";
 import {
@@ -13,9 +11,7 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore";
-// import { database } from "../../../firebase";
-// import Loading from "../../components/Loading";
-// import { useParams } from "react-router-dom";
+
 import { toast } from "react-toastify";
 import { useGlobalContext } from "../../context";
 import emailjs from "@emailjs/browser";
@@ -30,9 +26,9 @@ const toastConfig = {
   progress: undefined,
   theme: "light",
 };
-const EventContext = createContext();
+const AllUserContext = createContext();
 
-const EventProvider = ({ children }) => {
+const AllUserProvider = ({ children }) => {
   const { user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
   const [usersWithAbstract, setUsersWithAbstract] = useState([]);
@@ -277,12 +273,12 @@ const EventProvider = ({ children }) => {
   };
 
   return (
-    <EventContext.Provider value={value}>{children}</EventContext.Provider>
+    <AllUserContext.Provider value={value}>{children}</AllUserContext.Provider>
   );
 };
 
-export const useGlobalEventContext = () => {
-  return useContext(EventContext);
+export const useGlobalAllUser = () => {
+  return useContext(AllUserContext);
 };
 
-export { EventContext, EventProvider };
+export { AllUserContext, AllUserProvider };

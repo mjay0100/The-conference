@@ -1,4 +1,4 @@
-import { useGlobalEventContext } from "../context/EventContext";
+import { useGlobalAllUser } from "../context/AllUserContext";
 
 const Presenters = ({ id }) => {
   const {
@@ -12,7 +12,7 @@ const Presenters = ({ id }) => {
     handleDenial,
     approving,
     denying,
-  } = useGlobalEventContext();
+  } = useGlobalAllUser();
 
   return (
     <div>

@@ -1,7 +1,7 @@
-import { useGlobalEventContext } from "../context/EventContext";
+import { useGlobalAllUser } from "../context/AllUserContext";
 
 const AcceptedAbstracts = () => {
-  const { acceptedAbstracts } = useGlobalEventContext();
+  const { acceptedAbstracts } = useGlobalAllUser();
   return (
     <div>
       {
