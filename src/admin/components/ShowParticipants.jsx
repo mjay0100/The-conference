@@ -5,12 +5,15 @@ const ShowParticipants = () => {
   return (
     <>
       {
-        <>
-          {usersWithoutAbstract.length > 0 ? (
+        <div>
+          <p className="text-center capitalize my-5">
+            Total number of participants: {usersWithoutAbstract.length}
+          </p>
+          {usersWithoutAbstract.length > 0 && (
             <div className="overflow-x-auto">
-              <h2 className="text-2xl font-bold mb-4">
+              {/* <h2 className="text-2xl font-bold mb-4">
                 Users without Abstracts
-              </h2>
+              </h2> */}
               <table className="min-w-full table-fixed text-sm">
                 <thead className="bg-gray-700 text-white">
                   <tr>
@@ -32,12 +35,8 @@ const ShowParticipants = () => {
                 </tbody>
               </table>
             </div>
-          ) : (
-            <div className="text-center text-gray-600">
-              <p>No participants</p>
-            </div>
           )}
-        </>
+        </div>
       }
     </>
   );

@@ -10,6 +10,7 @@ import {
   updateDoc,
   addDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 import { toast } from "react-toastify";
@@ -65,7 +66,7 @@ const AllUserProvider = ({ children }) => {
     }
   };
 
-  const getUsers = async (id) => {
+  const getUsers = (id) => {
     setLoading(true);
     try {
       const attendeesCollection = collection(
@@ -74,22 +75,24 @@ const AllUserProvider = ({ children }) => {
         id,
         "attendees"
       );
-      const attendeesSnapshot = await getDocs(attendeesCollection);
-      const usersData = attendeesSnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        attendeeId: doc.id,
-      }));
 
-      const usersWithAbstract = usersData.filter(
-        (user) => user.role === "presenter" && user.fileUrl
-      );
-      const usersWithoutAbstract = usersData.filter(
-        (user) => user.role === "participant" && !user.fileUrl
-      );
+      onSnapshot(attendeesCollection, (snapshot) => {
+        const usersData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          attendeeId: doc.id,
+        }));
 
-      setUsersWithAbstract(usersWithAbstract);
-      setUsersWithoutAbstract(usersWithoutAbstract);
-      setLoading(false);
+        const usersWithAbstract = usersData.filter(
+          (user) => user.role === "presenter" && user.fileUrl
+        );
+        const usersWithoutAbstract = usersData.filter(
+          (user) => user.role === "participant" && !user.fileUrl
+        );
+
+        setUsersWithAbstract(usersWithAbstract);
+        setUsersWithoutAbstract(usersWithoutAbstract);
+        setLoading(false);
+      });
     } catch (error) {
       console.error("Error fetching users:", error);
       setLoading(false);
@@ -97,7 +100,6 @@ const AllUserProvider = ({ children }) => {
   };
 
   const handleAssignReviewer = async (userId, id) => {
-    // Implementation of handleAssignReviewer function
     if (!reviewerAssignments[userId]) {
       toast.error("Please select a reviewer before assigning!", toastConfig);
       return;
@@ -116,12 +118,10 @@ const AllUserProvider = ({ children }) => {
   };
 
   const handleReviewerChange = (userId, reviewerId) => {
-    // Implementation of handleReviewerChange function
     setReviewerAssignments((prev) => ({ ...prev, [userId]: reviewerId }));
   };
 
   const handleApproval = async (attendeeId, id) => {
-    // Implementation of handleApproval function
     try {
       setApproving((prev) => ({ ...prev, [attendeeId]: true }));
       const userRef = doc(database, "events", id, "attendees", attendeeId);
@@ -150,7 +150,6 @@ const AllUserProvider = ({ children }) => {
   };
 
   const handleDenial = async (attendeeId, id) => {
-    // Implementation of handleDenial function
     try {
       setDenying((prev) => ({ ...prev, [attendeeId]: true }));
 
@@ -222,7 +221,6 @@ const AllUserProvider = ({ children }) => {
   };
 
   const handleShowRejectedAbstracts = async (id) => {
-    // Implementation of handleShowRejectedAbstracts function
     setShowParticipants(false);
     setShowPresenters(false);
     setShowAcceptedAbstracts(false);

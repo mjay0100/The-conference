@@ -36,29 +36,10 @@ const editEvent = () => {
     theme: "",
     subThemes: "", // Split subThemes by commas and trim whitespace
     keynoteSpeaker: "",
+    price: 0,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [eventPrice, setEventPrice] = useState(0);
-
-  useEffect(() => {
-    const fetchEventPrice = async () => {
-      try {
-        const eventDocRef = doc(database, "events", id);
-        const eventSnapshot = await getDoc(eventDocRef);
-        if (eventSnapshot.exists()) {
-          const eventData = eventSnapshot.data();
-          if (eventData.price) {
-            setEventPrice(eventData.price);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching event price:", error);
-      }
-    };
-    fetchEventPrice();
-  }, [id]);
 
   const handleGoBack = () => {
     // Navigate to the previous page
@@ -88,6 +69,7 @@ const editEvent = () => {
             theme: eventData.theme,
             subThemes: eventData.subThemes, // Split subThemes by commas and trim whitespace
             keynoteSpeaker: eventData.keynoteSpeaker,
+            price: eventData.price,
           });
         } else {
           console.error("Event not found");
@@ -145,6 +127,7 @@ const editEvent = () => {
         theme: formData.theme, // Add theme field
         subThemes: subThemesArray,
         keynoteSpeaker: formData.keynoteSpeaker,
+        price: formData.price,
         // Add other fields as needed
       });
 
@@ -340,7 +323,7 @@ const editEvent = () => {
                       required
                       type="number"
                       name="price"
-                      value={eventPrice}
+                      value={formData.price}
                       onChange={handleInputChange}
                       id="price"
                       autoComplete="price"

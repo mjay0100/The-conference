@@ -62,6 +62,7 @@ import {
   RegisterContext,
   RegisterProvider,
 } from "./user/context/RegisterContext";
+import { CreateEventProvider } from "./admin/context/CreateEventContext";
 
 const router = createBrowserRouter([
   {
@@ -94,11 +95,19 @@ const router = createBrowserRouter([
           },
           {
             path: "/admin-dashboard/:id/edit",
-            element: <EditEvent />,
+            element: (
+              <CreateEventProvider>
+                <EditEvent />
+              </CreateEventProvider>
+            ),
           },
           {
             path: "/admin-dashboard/create-event",
-            element: <CreateEvent />,
+            element: (
+              <CreateEventProvider>
+                <CreateEvent />
+              </CreateEventProvider>
+            ),
           },
           {
             path: "/admin-dashboard/:id/attendees",

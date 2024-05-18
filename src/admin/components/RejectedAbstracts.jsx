@@ -4,9 +4,12 @@ const RejectedAbstracts = () => {
   const { rejectedAbstracts } = useGlobalAllUser();
   return (
     <div>
-      {rejectedAbstracts.length > 0 ? (
+      <p className="text-center capitalize my-5">
+        Total number of Rejected Abstracts: {rejectedAbstracts.length}
+      </p>
+      {rejectedAbstracts.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Rejected Abstracts</h2>
+          {/* <h2 className="text-2xl font-bold mb-4">Rejected Abstracts</h2> */}
           <table className="min-w-full text-sm">
             <thead className="bg-gray-700 text-white">
               <tr>
@@ -33,10 +36,6 @@ const RejectedAbstracts = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      ) : (
-        <div className="text-center text-gray-600">
-          <p>No rejected abstracts</p>
         </div>
       )}
     </div>

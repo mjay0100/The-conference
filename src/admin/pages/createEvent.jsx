@@ -1,128 +1,26 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import { database } from "../../../firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { ToastContainer } from "react-toastify";
+import { useGlobalCreateEvent } from "../context/CreateEventContext";
 
-const toastConfig = {
-  position: "bottom-center",
-  autoClose: 2000,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: false,
-  draggable: false,
-  progress: undefined,
-  theme: "light",
-};
 const createEvent = () => {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    date: "",
-    venue: "",
-    description: "",
-    price: 0,
-    totalParticipants: 0,
-    theme: "",
-    subThemes: "",
-    keynoteSpeaker: "",
-  });
-  const handleGoBack = () => {
-    // Navigate to the previous page
-    navigate(-1);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    // Prevent the user from entering a past date for the "date" field
-    if (name === "date" && new Date(value) < new Date()) {
-      toast.error("Cannot select a past date!", toastConfig);
-      return;
-    }
-
-    // Convert the value to a number using the unary plus operator
-    const parsedValue = name === "totalParticipants" ? +value : value;
-    const price = name === "price" ? +value : value;
-    setFormData({
-      ...formData,
-      [name]: parsedValue,
-      [name]: price,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isSubmitting) {
-      return;
-    }
-    if (formData.totalParticipants <= 0) {
-      toast.error(
-        "Number of participants must be greater than zero!",
-        toastConfig
-      );
-      return;
-    }
-    try {
-      setIsSubmitting(true);
-      // Reference to the 'events' collection
-      const eventsCollection = collection(database, "events");
-
-      // Data for the new event
-      const eventData = {
-        title: formData.title,
-        venue: formData.venue,
-        description: formData.description,
-        date: formData.date,
-        price: formData.price,
-        totalParticipants: formData.totalParticipants,
-        theme: formData.theme, // Add theme field
-        subThemes: formData.subThemes
-          .split(",")
-          .map((subTheme) => subTheme.trim()), // Split subThemes by commas and trim whitespace
-        keynoteSpeaker: formData.keynoteSpeaker, // Add keynoteSpeaker field
-        createdAt: serverTimestamp(),
-        // attendees: [], // Initialize attendees as an empty array
-      };
-
-      // Add the new event to the 'events' collection
-      const newEventRef = await addDoc(eventsCollection, eventData);
-      console.log("Event created with ID:", newEventRef);
-
-      // Show a success toast
-      toast.success("Event created successfully!", toastConfig);
-      setTimeout(() => {
-        navigate("/admin-dashboard");
-        setFormData({
-          title: "",
-          venue: "",
-          description: "",
-          date: "",
-          totalParticipants: 0,
-          theme: "",
-          subThemes: "",
-          keynoteSpeaker: "",
-        });
-      }, 3000);
-    } catch (error) {
-      console.error("Error creating event:", error);
-      // Show an error toast
-      toast.error("Error creating event. Please try again.", toastConfig);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+  const {
+    formData,
+    isSubmitting,
+    handleGoBack,
+    handleInputChange,
+    handleSubmit,
+  } = useGlobalCreateEvent();
   return (
     <div>
       <div>
         <ToastContainer />
 
-        <form onSubmit={handleSubmit} className="mx-12">
+        <form onSubmit={(e) => handleSubmit(e, navigate)} className="mx-12">
           {/* Same as */}
           <div className="space-y-12">
-            <div className="border-b border-gray-900/10 pb-4">
+            <div className="border-b border-gray-900/10 pb-4 mt-5">
               <h2 className=" capitalize text-base font-semibold leading-7 text-gray-900">
                 Create An Event
               </h2>
@@ -329,7 +227,7 @@ const createEvent = () => {
 
           <div className="mt-6 flex items-center justify-end gap-x-6">
             <button
-              onClick={handleGoBack}
+              onClick={() => handleGoBack(navigate)}
               type="button"
               className="text-sm font-semibold leading-6 text-gray-900"
             >

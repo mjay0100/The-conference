@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import {
   collection,
   doc,
-  getDocs,
-  query,
+  onSnapshot,
   updateDoc,
+  query,
   where,
 } from "firebase/firestore";
 import { database } from "../../../firebase";
@@ -12,7 +12,6 @@ import Loading from "../../components/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useGlobalContext } from "../../context";
-// import { Editor } from "@tinymce/tinymce-react";
 
 const toastConfig = {
   position: "bottom-center",
@@ -30,7 +29,7 @@ const AllUser = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [comment, setComment] = useState(""); // State to store the comment
+  const [comment, setComment] = useState("");
   const { user } = useGlobalContext();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,18 +38,16 @@ const AllUser = () => {
     setSelectedUser(user);
     setIsModalOpen(true);
     if (isEdit) {
-      // Prefill the comment in case of edit
       setComment(user.reviewerComment);
     } else {
-      // Clear the comment field if it's not an edit
       setComment("");
     }
   };
 
   const handleCloseModal = () => {
-    setSelectedUser(null); // Reset selected user
+    setSelectedUser(null);
     setIsModalOpen(false);
-    setComment(""); // Clear the comment field when closing the modal
+    setComment("");
   };
 
   const handleSaveComment = async () => {
@@ -62,9 +59,9 @@ const AllUser = () => {
         "attendees",
         selectedUser.attendeeId
       );
-      await updateDoc(userRef, { reviewerComment: comment }); // Save the comment to Firestore
+      await updateDoc(userRef, { reviewerComment: comment });
       toast.success("Comment added successfully!", toastConfig);
-      handleCloseModal(); // Close the modal after saving the comment
+      handleCloseModal();
     } catch (error) {
       console.error("Error adding comment:", error);
       toast.error("Error adding comment. Please try again.");
@@ -72,7 +69,7 @@ const AllUser = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate to the previous page
+    navigate(-1);
   };
 
   useEffect(() => {
@@ -82,13 +79,14 @@ const AllUser = () => {
           collection(database, "events", id, "attendees"),
           where("reviewerId", "==", user.uid)
         );
-        const querySnapshot = await getDocs(usersQuery);
-        const usersWithAbstract = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          attendeeId: doc.id,
-        }));
-        setUsersWithAbstract(usersWithAbstract);
-        setLoading(false);
+        onSnapshot(usersQuery, (querySnapshot) => {
+          const usersWithAbstract = querySnapshot.docs.map((doc) => ({
+            ...doc.data(),
+            attendeeId: doc.id,
+          }));
+          setUsersWithAbstract(usersWithAbstract);
+          setLoading(false);
+        });
       } catch (error) {
         console.error("Error fetching assigned users:", error);
       }
@@ -154,7 +152,7 @@ const AllUser = () => {
                               {user.reviewerComment ? (
                                 <button
                                   type="button"
-                                  onClick={() => handleOpenModal(user, true)} // Pass true to indicate it's an edit
+                                  onClick={() => handleOpenModal(user, true)}
                                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                                 >
                                   Edit Comment
@@ -162,7 +160,7 @@ const AllUser = () => {
                               ) : (
                                 <button
                                   type="button"
-                                  onClick={() => handleOpenModal(user)} // Open modal for adding comment
+                                  onClick={() => handleOpenModal(user)}
                                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 mx-2 rounded-md focus:outline-none focus:ring focus:border-green-300"
                                 >
                                   Add Comment
@@ -193,7 +191,6 @@ const AllUser = () => {
         </div>
       )}
 
-      {/* Modal for adding comment */}
       {selectedUser && (
         <div className={`modal ${isModalOpen ? "is-active" : ""}`}>
           <div

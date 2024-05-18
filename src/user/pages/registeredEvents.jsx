@@ -245,7 +245,7 @@ const RegisteredEvents = () => {
                         event.abstractStatus === "Approved") ||
                       event.userRole === "participant" ? (
                       <PaystackButton
-                        publicKey={import.meta.env.VITE_PAYSTACK_KEY} // Corrected the variable name
+                        publicKey={import.meta.env.VITE_PATSTACK_KEY} // Corrected the variable name
                         email={user.email}
                         amount={event.price * 100} // Assuming price is in Naira
                         text="Pay Now"
@@ -257,7 +257,7 @@ const RegisteredEvents = () => {
                       />
                     ) : (
                       <span className="text-red-600">
-                        Paper not yet reviewed
+                        Paper not yet reviewed or approved
                       </span>
                     )}
                   </td>

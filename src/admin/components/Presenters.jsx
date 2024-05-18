@@ -16,9 +16,12 @@ const Presenters = ({ id }) => {
 
   return (
     <div>
+      <p className="text-center capitalize my-5">
+        Total number of presenters: {usersWithAbstract.length}
+      </p>
       {usersWithAbstract.length > 0 && (
         <div className="overflow-x-auto">
-          <h2 className="text-2xl font-bold mb-4">Users with Abstracts</h2>
+          {/* <h2 className="text-2xl font-bold mb-4">Users with Abstracts</h2> */}
           <table className="min-w-full text-sm">
             <thead className="bg-gray-700 text-white">
               <tr>
