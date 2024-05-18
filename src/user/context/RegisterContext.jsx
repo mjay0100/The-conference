@@ -1,10 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-// RegisterContext.js
 
-// import { useUser } from "@clerk/clerk-react";
 import { useState, useEffect, useContext, createContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { database, storage, ref } from "../../../firebase";
 import {
   addDoc,
@@ -13,17 +10,14 @@ import {
   getDoc,
   getDocs,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getDownloadURL, uploadBytes } from "firebase/storage";
-import { PaystackButton } from "react-paystack";
 import randomNumber from "random-number";
 
 import { useGlobalContext } from "../../context";
-import emailjs from "@emailjs/browser";
 
 const toastConfig = {
   position: "bottom-center",
@@ -55,23 +49,21 @@ const RegisterProvider = ({ children }) => {
     streetAddress: "",
     city: "",
     role: "participant", // Default role
-    middleName: "", // New field: Middle name
-    gender: "", // New field: Gender
-    phone: "", // New field: Phone number
-    disabilities: "", // New field: Disabilities
-    state: "", // New field: State
-    country: "", // New field: Country
+    middleName: "",
+    gender: "",
+    phone: "",
+    disabilities: "",
+    state: "",
+    country: "",
     abstractTitle: "",
-    authorType: "", // New field: Author type (main or co)
-    coAuthors: [{ name: "" }], // New field: Co-authors array with initial empty object
+    authorType: "",
+    coAuthors: [{ name: "" }],
   });
   const [file, setFile] = useState(null);
   const [fileInputDisabled, setFileInputDisabled] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventPrice, setEventPrice] = useState(0);
-  const [isPayNowDisabled, setIsPayNowDisabled] = useState(false);
   const { user } = useGlobalContext();
-  // State for co-authors
 
   const addCoAuthorField = () => {
     setFormData({
@@ -130,9 +122,6 @@ const RegisterProvider = ({ children }) => {
       formData.abstractTitle !== "" &&
       formData.authorType !== "" &&
       file !== null;
-    // Additional check for presenter role
-
-    setIsPayNowDisabled(!isFormFilled);
   }, [formData, file]);
 
   const handleFileInputChange = (e) => {
@@ -178,7 +167,6 @@ const RegisterProvider = ({ children }) => {
         setTimeout(() => {
           navigate("/user-dashboard");
         }, 3000);
-        // setIsPayNowDisabled(false);
         return;
       }
 
@@ -207,7 +195,7 @@ const RegisterProvider = ({ children }) => {
           delete attendeeData.abstractTitle;
           delete attendeeData.authorType;
           delete attendeeData.coAuthors;
-          delete attendeeData.abstractStatus; // In case abstractStatus was set in previous logic
+          delete attendeeData.abstractStatus;
         } else {
           // Include abstractStatus for non-participants
           attendeeData.abstractStatus = "pending";
@@ -219,11 +207,7 @@ const RegisterProvider = ({ children }) => {
           return;
         }
         await addDoc(attendeesCollectionRef, attendeeData);
-
-        console.log("Koca: attendeeData ", attendeeData);
-
         toast.success("Attendee registered successfully!", toastConfig);
-
         setFormData({
           firstName: "",
           lastName: "",
@@ -263,7 +247,6 @@ const RegisterProvider = ({ children }) => {
     setIsSubmitting,
     eventPrice,
     setEventPrice,
-    // handleSubmit,
     handleInputChange,
     handleFileInputChange,
     handleCoAuthorChange,
