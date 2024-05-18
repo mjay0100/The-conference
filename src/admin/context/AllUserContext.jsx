@@ -105,15 +105,15 @@ const AllUserProvider = ({ children }) => {
       return;
     }
     try {
-      setAssigning((prev) => ({ ...prev, [userId]: true })); // Set assigning to true for this user
+      setAssigning((prev) => ({ ...prev, [userId]: true }));
       const userRef = doc(database, "events", id, "attendees", userId);
       await updateDoc(userRef, { reviewerId: reviewerAssignments[userId] });
       toast.success("Reviewer assigned successfully!", toastConfig);
-      setAssigning((prev) => ({ ...prev, [userId]: false })); // Reset assigning to false after successful operation
+      setAssigning((prev) => ({ ...prev, [userId]: false }));
     } catch (error) {
       console.error("Error assigning reviewer:", error);
       toast.error("Error assigning reviewer. Please try again.", toastConfig);
-      setAssigning((prev) => ({ ...prev, [userId]: false })); // Reset assigning even if there's an error
+      setAssigning((prev) => ({ ...prev, [userId]: false }));
     }
   };
 
@@ -132,14 +132,11 @@ const AllUserProvider = ({ children }) => {
       const acceptedAttendeesCollection = collection(
         database,
         "events",
-        id, // Reference to the specific attendee document
-        "acceptedAbstracts" // Name of the subcollection
+        id,
+        "acceptedAbstracts"
       );
-      // Move the abstract status to the new subcollection
+      // Move the abstract status to the new sub collection
       await addDoc(acceptedAttendeesCollection, { ...userData });
-      // Remove user from the attendees collection
-      await deleteDoc(userRef);
-      // await updateDoc(userRef, { abstractStatus: "approved" });
       toast.success("User approved successfully!", toastConfig);
     } catch (error) {
       toast.error("Error approving user. Please try again.");
@@ -155,14 +152,11 @@ const AllUserProvider = ({ children }) => {
 
       const eventRef = doc(database, "events", id);
       const eventDoc = await getDoc(eventRef);
-      const eventData = eventDoc.data(); // Fetching event data
-      console.log("Event Data:", eventData); // Log the fetched event data
+      const eventData = eventDoc.data();
       const userRef = doc(database, "events", id, "attendees", attendeeId);
       const userDoc = await getDoc(userRef);
       const userData = userDoc.data();
-      console.log("Koca: userData ", userData);
       userData.abstractStatus = "rejected";
-
       const deniedAttendeesCollection = collection(
         database,
         "events",
@@ -180,16 +174,14 @@ const AllUserProvider = ({ children }) => {
       };
       await emailjs.send(
         import.meta.env.VITE_SERVICE_ID,
-        import.meta.env.VITE_TEMPLATE_ID,
+        import.meta.env.VITE_REJECT_TEMPLATE_ID,
         templateParams,
         {
-          publicKey: import.meta.env.VITE_EMAIL_PUBLIc_KEY,
+          publicKey: import.meta.env.VITE_EMAIL_PUBLIC_KEY,
         }
       );
-
-      console.log("SUCCESS!");
-
-      // await deleteDoc(userRef);
+      // Remove user from the attendees collection
+      await deleteDoc(userRef);
       toast.error("User denied successfully!", toastConfig);
     } catch (error) {
       console.error("Error denying user:", error);
