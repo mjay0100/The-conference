@@ -124,6 +124,9 @@ const AllUserProvider = ({ children }) => {
   const handleApproval = async (attendeeId, id) => {
     try {
       setApproving((prev) => ({ ...prev, [attendeeId]: true }));
+      const eventRef = doc(database, "events", id);
+      const eventDoc = await getDoc(eventRef);
+      const eventData = eventDoc.data();
       const userRef = doc(database, "events", id, "attendees", attendeeId);
       const userDoc = await getDoc(userRef);
       const userData = userDoc.data();
@@ -135,8 +138,24 @@ const AllUserProvider = ({ children }) => {
         id,
         "acceptedAbstracts"
       );
-      // Move the abstract status to the new sub collection
       await addDoc(acceptedAttendeesCollection, { ...userData });
+      const templateParams = {
+        from_name: user.displayName,
+        from_email: user.email,
+        to_name: `${userData.firstName} ${userData.lastName}`,
+        event_name: eventData.title,
+        event_id: id,
+      };
+
+      await emailjs.send(
+        import.meta.env.VITE_ACCEPTED_SERVICE_ID,
+        import.meta.env.VITE_ACCEPTED_TEMPLATE_ID,
+        templateParams,
+        {
+          publicKey: import.meta.env.VITE_EMAIL_PUBLIC_KEY,
+        }
+      );
+
       toast.success("User approved successfully!", toastConfig);
     } catch (error) {
       toast.error("Error approving user. Please try again.");
@@ -173,8 +192,8 @@ const AllUserProvider = ({ children }) => {
         message: userData.reviewerComment,
       };
       await emailjs.send(
-        import.meta.env.VITE_SERVICE_ID,
-        import.meta.env.VITE_REJECT_TEMPLATE_ID,
+        import.meta.env.VITE_REJECTED_SERVICE_ID,
+        import.meta.env.VITE_REJECTED_TEMPLATE_ID,
         templateParams,
         {
           publicKey: import.meta.env.VITE_EMAIL_PUBLIC_KEY,
