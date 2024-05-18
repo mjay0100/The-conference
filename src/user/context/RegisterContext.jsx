@@ -1,7 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+// RegisterContext.js
 
+// import { useUser } from "@clerk/clerk-react";
 import { useState, useEffect, useContext, createContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { database, storage, ref } from "../../../firebase";
 import {
   addDoc,
@@ -10,14 +13,17 @@ import {
   getDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getDownloadURL, uploadBytes } from "firebase/storage";
+import { PaystackButton } from "react-paystack";
 import randomNumber from "random-number";
 
 import { useGlobalContext } from "../../context";
+import emailjs from "@emailjs/browser";
 
 const toastConfig = {
   position: "bottom-center",
@@ -48,7 +54,7 @@ const RegisterProvider = ({ children }) => {
     email: "",
     streetAddress: "",
     city: "",
-    role: "participant", // Default role
+    role: "participant",
     middleName: "",
     gender: "",
     phone: "",
@@ -59,10 +65,12 @@ const RegisterProvider = ({ children }) => {
     authorType: "",
     coAuthors: [{ name: "" }],
   });
+
   const [file, setFile] = useState(null);
   const [fileInputDisabled, setFileInputDisabled] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventPrice, setEventPrice] = useState(0);
+  const [isPayNowDisabled, setIsPayNowDisabled] = useState(false);
   const { user } = useGlobalContext();
 
   const addCoAuthorField = () => {
@@ -122,6 +130,7 @@ const RegisterProvider = ({ children }) => {
       formData.abstractTitle !== "" &&
       formData.authorType !== "" &&
       file !== null;
+    setIsPayNowDisabled(!isFormFilled);
   }, [formData, file]);
 
   const handleFileInputChange = (e) => {
