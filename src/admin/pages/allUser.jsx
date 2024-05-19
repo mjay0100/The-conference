@@ -45,19 +45,6 @@ const AllUser = () => {
       <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-center space-4">
         <button
           onClick={() => {
-            setShowParticipants(false);
-            setShowPresenters(true);
-            setShowAcceptedAbstracts(false);
-            setShowRejectedAbstracts(false);
-          }}
-          className={`py-2 px-4 rounded ${
-            showPresenters ? "bg-blue-500 text-white" : "bg-gray-300"
-          }`}
-        >
-          Presenters
-        </button>
-        <button
-          onClick={() => {
             setShowParticipants(true);
             setShowPresenters(false);
             setShowAcceptedAbstracts(false);
@@ -68,6 +55,19 @@ const AllUser = () => {
           }`}
         >
           Participants
+        </button>
+        <button
+          onClick={() => {
+            setShowParticipants(false);
+            setShowPresenters(true);
+            setShowAcceptedAbstracts(false);
+            setShowRejectedAbstracts(false);
+          }}
+          className={`py-2 px-4 rounded ${
+            showPresenters ? "bg-blue-500 text-white" : "bg-gray-300"
+          }`}
+        >
+          Presenters
         </button>
         <button
           onClick={() => {

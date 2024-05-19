@@ -10,7 +10,7 @@ const AcceptedAbstracts = () => {
       {
         <div>
           {acceptedAbstracts.length > 0 && (
-            <div>
+            <div className="overflow-auto">
               {/* <h2 className="text-2xl font-bold mb-4">Accepted Abstracts</h2> */}
               <table className="min-w-full text-sm">
                 <thead className="bg-gray-700 text-white">
