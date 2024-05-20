@@ -23,8 +23,9 @@ const CreateEventProvider = ({ children }) => {
     date: "",
     venue: "",
     description: "",
-    price: 0,
-    totalParticipants: 0,
+    presenterPrice: "",
+    participantPrice: "",
+    totalParticipants: "",
     theme: "",
     subThemes: "",
     keynoteSpeaker: "",
@@ -42,13 +43,18 @@ const CreateEventProvider = ({ children }) => {
       return;
     }
 
-    // Convert the value to a number using the unary plus operator
-    const parsedValue = name === "totalParticipants" ? +value : value;
-    const price = name === "price" ? +value : value;
+    // Parse values to numbers where necessary
+    const parsedValue = [
+      "totalParticipants",
+      "presenterPrice",
+      "participantPrice",
+    ].includes(name)
+      ? +value
+      : value;
+
     setFormData({
       ...formData,
       [name]: parsedValue,
-      [name]: price,
     });
   };
 
@@ -75,7 +81,8 @@ const CreateEventProvider = ({ children }) => {
         venue: formData.venue,
         description: formData.description,
         date: formData.date,
-        price: formData.price,
+        presenterPrice: formData.presenterPrice,
+        participantPrice: formData.participantPrice,
         totalParticipants: formData.totalParticipants,
         theme: formData.theme, // Add theme field
         subThemes: formData.subThemes
@@ -87,8 +94,8 @@ const CreateEventProvider = ({ children }) => {
       };
 
       // Add the new event to the 'events' collection
-      const newEventRef = await addDoc(eventsCollection, eventData);
-      console.log("Event created with ID:", newEventRef);
+      await addDoc(eventsCollection, eventData);
+      console.log("Koca: eventData ", eventData);
 
       // Show a success toast
       toast.success("Event created successfully!", toastConfig);

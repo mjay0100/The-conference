@@ -44,7 +44,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="title"
                       autoComplete="title"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
@@ -68,7 +68,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="theme"
                       autoComplete="theme"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
@@ -89,7 +89,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="subThemes"
                       autoComplete="subThemes"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                       placeholder="Enter multiple sub-themes separated by commas"
                     />
                     <small className="text-xs text-gray-500">
@@ -114,7 +114,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="keynoteSpeaker"
                       autoComplete="keynoteSpeaker"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
@@ -135,7 +135,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="venue"
                       autoComplete="venue"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
@@ -156,16 +156,16 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="date"
                       autoComplete="date"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
-                <div className="sm:col-span-3">
+                <div className="sm:col-span-2">
                   <label
                     htmlFor="totalParticipants"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Total Number of Participants
+                    Number of Participants
                   </label>
                   <div className="mt-2">
                     <input
@@ -176,27 +176,50 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       id="venue"
                       autoComplete="number"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>
-                <div className="sm:col-span-3">
+                <div className="sm:col-span-2">
                   <label
-                    htmlFor="price"
+                    htmlFor="presenterPrice"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Price
+                    Presenter Price (Naira)
                   </label>
                   <div className="mt-2">
                     <input
                       required
                       type="number"
-                      name="price"
-                      value={formData.price}
+                      name="presenterPrice"
+                      value={formData.presenterPrice}
                       onChange={handleInputChange}
-                      id="price"
-                      autoComplete="price"
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      id="presenterPrice"
+                      autoComplete="presenterPrice"
+                      className="form-input"
+                      placeholder="N"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="participantPrice"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Participant Price (Naira)
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      required
+                      type="number"
+                      name="participantPrice"
+                      value={formData.participantPrice}
+                      onChange={handleInputChange}
+                      id="participantPrice"
+                      autoComplete="participantPrice"
+                      className="form-input"
+                      placeholder="N"
                     />
                   </div>
                 </div>
@@ -217,7 +240,7 @@ const createEvent = () => {
                       onChange={handleInputChange}
                       autoComplete="description"
                       rows={5}
-                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      className="form-input"
                     />
                   </div>
                 </div>

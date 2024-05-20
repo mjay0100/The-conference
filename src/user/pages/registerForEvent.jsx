@@ -19,7 +19,6 @@ const RegisterForEvent = () => {
   return (
     <div>
       <ToastContainer />
-
       <form onSubmit={(e) => handleSubmit(e, id, navigate)} className="mx-12">
         {/* Same as */}
         <div className="space-y-12">

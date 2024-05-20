@@ -1,16 +1,29 @@
+import { useEffect, useState } from "react";
 import { useRegisterContext } from "../context/RegisterContext";
 
 const RegisterForEventForm = () => {
   const {
     formData,
     fileInputDisabled,
-    eventPrice,
     handleInputChange,
     handleFileInputChange,
     handleCoAuthorChange,
     removeCoAuthorField,
     addCoAuthorField,
+    eventPrices,
   } = useRegisterContext();
+
+  const [dynamicEventPrice, setDynamicEventPrice] = useState(0);
+
+  useEffect(() => {
+    if (formData.role === "participant") {
+      setDynamicEventPrice(eventPrices.participantPrice);
+    } else if (formData.role === "presenter") {
+      setDynamicEventPrice(eventPrices.presenterPrice);
+    } else {
+      setDynamicEventPrice(0);
+    }
+  }, [formData.role, eventPrices]);
 
   return (
     <div>
@@ -214,7 +227,7 @@ const RegisterForEventForm = () => {
             <input
               type="text"
               id="event-price"
-              value={eventPrice}
+              value={`N${dynamicEventPrice}`}
               disabled
               className="form-input"
             />

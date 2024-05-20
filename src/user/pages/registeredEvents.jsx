@@ -60,8 +60,6 @@ const RegisteredEvents = () => {
               const paymentStatus = attendeeDoc.data().paymentStatus;
               const abstractTitle = attendeeDoc.data().abstractTitle;
               const reviewerComment = attendeeDoc.data().reviewerComment;
-              console.log("Koca: reviewerComment ", reviewerComment);
-              console.log("Koca: abstractTitle ", abstractTitle);
 
               // Fetch user role and event details concurrently
               const [userRoleSnapshot, eventDetailsSnapshot] =
@@ -79,21 +77,23 @@ const RegisteredEvents = () => {
               const certId = userRoleSnapshot.docs[0]?.data().certificateId;
 
               const eventDetails = eventDetailsSnapshot.data();
-              console.log("Koca: eventDetails ", eventDetails);
 
-              // Set status to "approved" if the user role is "participant"
-              const updatedStatus =
-                userRole === "participant" ? "approved" : status;
+              // Determine the price based on the user role
+              const price =
+                userRole === "presenter"
+                  ? eventDetails.presenterPrice
+                  : eventDetails.participantPrice;
 
               return {
                 id: event.id,
                 ...eventDetails,
-                status: updatedStatus,
+                status,
                 userRole,
                 certId,
                 paymentStatus,
                 abstractTitle,
                 reviewerComment,
+                price,
               };
             }
 
@@ -107,7 +107,6 @@ const RegisteredEvents = () => {
         );
 
         setRegisteredEvents(filteredEvents);
-        console.log("Koca: filteredEvents ", filteredEvents);
         setLoadingRegisteredEvents(false);
       } catch (error) {
         console.error("Error fetching registered events:", error);

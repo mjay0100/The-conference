@@ -69,7 +69,10 @@ const RegisterProvider = ({ children }) => {
   const [file, setFile] = useState(null);
   const [fileInputDisabled, setFileInputDisabled] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [eventPrice, setEventPrice] = useState(0);
+  const [eventPrices, setEventPrices] = useState({
+    presenterPrice: null,
+    participantPrice: null,
+  });
   const [isPayNowDisabled, setIsPayNowDisabled] = useState(false);
   const { user } = useGlobalContext();
 
@@ -105,12 +108,13 @@ const RegisterProvider = ({ children }) => {
       const eventSnapshot = await getDoc(eventDocRef);
       if (eventSnapshot.exists()) {
         const eventData = eventSnapshot.data();
-        if (eventData.price) {
-          setEventPrice(eventData.price);
-        }
+        setEventPrices({
+          presenterPrice: eventData.presenterPrice || 0,
+          participantPrice: eventData.participantPrice || 0,
+        });
       }
     } catch (error) {
-      console.error("Error fetching event price:", error);
+      console.error("Error fetching event prices:", error);
     }
   };
 
@@ -254,8 +258,8 @@ const RegisterProvider = ({ children }) => {
     setFileInputDisabled,
     isSubmitting,
     setIsSubmitting,
-    eventPrice,
-    setEventPrice,
+
+    eventPrices,
     handleInputChange,
     handleFileInputChange,
     handleCoAuthorChange,
