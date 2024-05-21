@@ -54,7 +54,7 @@ const RegisterProvider = ({ children }) => {
     email: "",
     streetAddress: "",
     city: "",
-    role: "participant",
+    role: "",
     middleName: "",
     gender: "",
     phone: "",
@@ -63,6 +63,7 @@ const RegisterProvider = ({ children }) => {
     country: "",
     abstractTitle: "",
     authorType: "",
+    mainAuthor: "",
     coAuthors: [{ name: "" }],
   });
 
@@ -70,10 +71,9 @@ const RegisterProvider = ({ children }) => {
   const [fileInputDisabled, setFileInputDisabled] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventPrices, setEventPrices] = useState({
-    presenterPrice: null,
-    participantPrice: null,
+    presenterPrice: 0,
+    participantPrice: 0,
   });
-  const [isPayNowDisabled, setIsPayNowDisabled] = useState(false);
   const { user } = useGlobalContext();
 
   const addCoAuthorField = () => {
@@ -132,9 +132,9 @@ const RegisterProvider = ({ children }) => {
       formData.state !== "" &&
       formData.country !== "" &&
       formData.abstractTitle !== "" &&
+      formData.mainAuthor !== "" &&
       formData.authorType !== "" &&
       file !== null;
-    setIsPayNowDisabled(!isFormFilled);
   }, [formData, file]);
 
   const handleFileInputChange = (e) => {
@@ -149,11 +149,9 @@ const RegisterProvider = ({ children }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    const newValue =
-      name === "disabilities" && value.trim() === "" ? "None" : value;
     setFormData({
       ...formData,
-      [name]: newValue,
+      [name]: value,
     });
     if (name === "role") {
       setFileInputDisabled(value === "participant");
@@ -201,6 +199,24 @@ const RegisterProvider = ({ children }) => {
           userId: user.uid,
           certificateId: generateRandomNumber(),
         };
+        //  coAuthors is none if no co-authors are provided
+        if (
+          formData.coAuthors &&
+          formData.coAuthors.every((coAuthor) => coAuthor.name.trim() === "")
+        ) {
+          attendeeData.coAuthors = "none";
+        }
+
+        // Ensure disabilities is 'none' if it contains the default value or is empty
+        if (
+          formData.disabilities.trim() === "None" ||
+          formData.disabilities.trim() === ""
+        ) {
+          attendeeData.disabilities = "none";
+        }
+        if (formData.authorType === "main") {
+          attendeeData.mainAuthor = "none";
+        }
 
         // Check if the user is a participant
         if (formData.role === "participant") {
@@ -219,6 +235,7 @@ const RegisterProvider = ({ children }) => {
           toast.error("Please enter a valid email address.", toastConfig);
           return;
         }
+        console.log("Koca: attendeeData ", attendeeData);
         await addDoc(attendeesCollectionRef, attendeeData);
         toast.success("Attendee registered successfully!", toastConfig);
         setFormData({
@@ -233,6 +250,8 @@ const RegisterProvider = ({ children }) => {
           disabilities: "",
           state: "",
           country: "",
+          mainAuthor: "",
+          role: "",
         });
         setIsSubmitting(false);
         setTimeout(() => {
