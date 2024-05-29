@@ -5,15 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const { user } = useGlobalContext();
-  console.log("Koca: user ", user.photoURL);
   const navigate = useNavigate();
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      localStorage.removeItem("userRole");
       console.log("User signed out successfully");
-      // Redirect to login or home page after sign out
-      // navigate("/login"); // Uncomment this line if you use useNavigate for redirection
       navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
