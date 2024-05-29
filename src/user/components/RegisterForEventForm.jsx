@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRegisterContext } from "../context/RegisterContext";
+import CoAuthor from "./CoAuthor";
 
 const RegisterForEventForm = () => {
   const {
@@ -7,9 +8,6 @@ const RegisterForEventForm = () => {
     fileInputDisabled,
     handleInputChange,
     handleFileInputChange,
-    handleCoAuthorChange,
-    removeCoAuthorField,
-    addCoAuthorField,
     eventPrices,
   } = useRegisterContext();
 
@@ -128,7 +126,7 @@ const RegisterForEventForm = () => {
               value={formData.phone}
               onChange={handleInputChange}
               id="phone"
-              autoComplete="tel"
+              autoComplete="phone"
               className="form-input"
             />
           </div>
@@ -148,7 +146,7 @@ const RegisterForEventForm = () => {
               value={formData.disabilities}
               onChange={handleInputChange}
               id="disabilities"
-              autoComplete="none"
+              autoComplete="disabilities"
               className="form-input"
               placeholder="If any"
             />
@@ -169,7 +167,7 @@ const RegisterForEventForm = () => {
               value={formData.state}
               onChange={handleInputChange}
               id="state"
-              autoComplete="address-level1"
+              autoComplete="state"
               className="form-input"
             />
           </div>
@@ -227,7 +225,7 @@ const RegisterForEventForm = () => {
             <input
               type="text"
               id="event-price"
-              value={`N${dynamicEventPrice}`}
+              value={eventPrices && `N${dynamicEventPrice}`}
               disabled
               className="form-input"
             />
@@ -291,6 +289,7 @@ const RegisterForEventForm = () => {
               onChange={handleInputChange}
               className="form-input"
             >
+              <option value="">Select</option>
               <option value="participant">Participant</option>
               <option value="presenter">Presenter</option>
             </select>
@@ -317,7 +316,7 @@ const RegisterForEventForm = () => {
             </div>
           </div>
         )}
-        {/* abstarct title */}
+        {/* abstract title */}
         {formData.role === "presenter" && (
           <div
             className={`${
@@ -338,7 +337,7 @@ const RegisterForEventForm = () => {
                 value={formData.abstractTitle}
                 onChange={handleInputChange}
                 id="abstract-title"
-                autoComplete="off"
+                autoComplete="abstract-title"
                 className="form-input"
               />
             </div>
@@ -360,6 +359,7 @@ const RegisterForEventForm = () => {
                   value="main"
                   checked={formData.authorType === "main"}
                   onChange={handleInputChange}
+                  required
                 />
                 <span className="ml-2">Main Author</span>
               </label>
@@ -371,43 +371,35 @@ const RegisterForEventForm = () => {
                   value="co-author"
                   checked={formData.authorType === "co-author"}
                   onChange={handleInputChange}
+                  required
                 />
                 <span className="ml-2">Co-Author</span>
               </label>
             </div>
-
-            <div className="mt-4">
-              {formData.coAuthors?.map((coAuthor, index) => (
-                <div key={index} className="mt-2 grid grid-cols-2">
+            {formData.authorType === "co-author" && (
+              <>
+                <div className="flex gap-4 justify-between items-center mt-3">
+                  <label htmlFor="mainAuthor">Main Author:</label>
                   <input
                     type="text"
-                    name="name"
-                    value={coAuthor.name}
-                    onChange={(e) => handleCoAuthorChange(index, e)}
-                    placeholder="Co-Author Name"
-                    className="form-input"
+                    id="mainAuthor"
+                    name="mainAuthor"
+                    value={formData.mainAuthor}
+                    onChange={handleInputChange}
+                    placeholder="Main Author Name"
+                    className="form-input "
+                    required
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeCoAuthorField(index)}
-                    className="ml-2 py-1 px-2 bg-red-500 text-white font-semibold rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-100"
-                  >
-                    Remove
-                  </button>
                 </div>
-              ))}
-              <button
-                type="button"
-                onClick={addCoAuthorField}
-                className="mt-2 py-1 px-2 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-100"
-              >
-                Add Co-Author
-              </button>
+                <CoAuthor />
+              </>
+            )}
+
+            <div className="mt-4">
+              {formData.authorType === "main" && <CoAuthor />}
             </div>
           </div>
         )}
-        {/* End of Co-author fields */}
-        {/* end */}
       </div>
     </div>
   );
