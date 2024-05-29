@@ -15,7 +15,8 @@ export default function DashboardPage({ userType }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 3; // Change this value to adjust the number of events per page
+  const eventsPerPage = 2; // Change this value to adjust the number of events per page
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const eventCollection = collection(database, "events");
@@ -51,13 +52,24 @@ export default function DashboardPage({ userType }) {
     };
   }, []);
 
+  useEffect(() => {
+    // Reset current page to 1 whenever the search query changes
+    setCurrentPage(1);
+  }, [searchQuery]);
+  const filteredEvents = events.filter((event) =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   // Logic to calculate pagination
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent
+  );
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
 
   return (
     <>
@@ -71,67 +83,82 @@ export default function DashboardPage({ userType }) {
       </header>
 
       <div className="w-4/6 mx-auto mt-8">
-        {loading && <Loading />}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 text-center gap-8">
-          {currentEvents.map((event) => (
-            <div
-              key={event.id}
-              className="w-full bg-white rounded-md shadow-md overflow-hidden capitalize"
-            >
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">{event.title}</h2>
-                <p className="text-gray-700">
-                  <span className="font-bold">Date:</span> {event.date}
-                </p>
-                {/* <p className="text-gray-700">
+        {/* Search Input */}
+        <div className="mb-8">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for an event"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          />
+        </div>
+        {loading ? (
+          <Loading />
+        ) : (
+          <>
+            {filteredEvents.length === 0 ? (
+              <div className="text-center text-gray-500">No events found.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 text-center gap-8">
+                {currentEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="w-full bg-white rounded-md shadow-md overflow-hidden capitalize"
+                  >
+                    <div className="p-6">
+                      <h2 className="text-2xl font-bold mb-4">{event.title}</h2>
+                      <p className="text-gray-700">
+                        <span className="font-bold">Date:</span> {event.date}
+                      </p>
+                      {/* <p className="text-gray-700">
                   <span className="font-bold">Number of Participants:</span>{" "}
                   {event.totalParticipants}
                 </p> */}
-                <p className="text-gray-700">
-                  <span className="font-bold">Attendees:</span>{" "}
-                  {event.attendeesCount}
-                </p>
+                      <p className="text-gray-700">
+                        <span className="font-bold">Attendees:</span>{" "}
+                        {event.attendeesCount}
+                      </p>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-500 to-teal-500 py-4">
+                      <Link
+                        to={`/${
+                          userType === "admin"
+                            ? "admin"
+                            : userType === "reviewer"
+                            ? "reviewer"
+                            : "user"
+                        }-dashboard/${event.id}`}
+                      >
+                        <button className="block w-full text-center text-white font-bold py-2 px-4 bg-gradient-to-r from-purple-500 to-teal-500 hover:bg-teal-600 focus:outline-none focus:shadow-outline-teal focus:border-teal-300">
+                          Learn More
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="bg-gradient-to-r from-purple-500 to-teal-500 py-4">
-                <Link
-                  to={`/${
-                    userType === "admin"
-                      ? "admin"
-                      : userType === "reviewer"
-                      ? "reviewer"
-                      : "user"
-                  }-dashboard/${event.id}`}
-                >
-                  <button className="block w-full text-center text-white font-bold py-2 px-4 bg-gradient-to-r from-purple-500 to-teal-500 hover:bg-teal-600 focus:outline-none focus:shadow-outline-teal focus:border-teal-300">
-                    Learn More
-                  </button>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <div className="pagination mt-8 flex justify-center">
-          <ul className="flex">
-            {Array.from(
-              { length: Math.ceil(events.length / eventsPerPage) },
-              (_, i) => (
-                <li key={i}>
-                  <button
-                    onClick={() => paginate(i + 1)}
-                    className={`mx-1 px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-teal-500 hover:text-white focus:outline-none transition-colors duration-200 ${
-                      currentPage === i + 1 ? "bg-teal-500" : ""
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                </li>
-              )
             )}
-          </ul>
-        </div>
+
+            {/* Pagination */}
+            <div className="pagination mt-8 flex justify-center">
+              <ul className="flex">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => paginate(i + 1)}
+                      className={`mx-1 px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-teal-500 hover:text-white focus:outline-none transition-colors duration-200 ${
+                        currentPage === i + 1 ? "bg-teal-500" : ""
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
