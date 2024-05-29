@@ -12,7 +12,8 @@ import {
   deleteDoc,
   onSnapshot,
 } from "firebase/firestore";
-
+import { ref, deleteObject } from "firebase/storage";
+import { storage } from "../../../firebase";
 import { toast } from "react-toastify";
 import { useGlobalContext } from "../../context";
 import emailjs from "@emailjs/browser";
@@ -170,19 +171,31 @@ const AllUserProvider = ({ children }) => {
       setDenying((prev) => ({ ...prev, [attendeeId]: true }));
 
       const eventRef = doc(database, "events", id);
-      const eventDoc = await getDoc(eventRef);
-      const eventData = eventDoc.data();
       const userRef = doc(database, "events", id, "attendees", attendeeId);
+
+      const eventDoc = await getDoc(eventRef);
       const userDoc = await getDoc(userRef);
-      const userData = userDoc.data();
-      userData.abstractStatus = "rejected";
+
+      if (!eventDoc.exists()) {
+        throw new Error("Event not found");
+      }
+      if (!userDoc.exists()) {
+        throw new Error("Attendee not found");
+      }
+
+      const eventData = eventDoc.data();
+      const userData = { ...userDoc.data(), abstractStatus: "rejected" };
+
+      // Add the user data to the rejectedAbstracts collection
       const deniedAttendeesCollection = collection(
         database,
         "events",
         id,
         "rejectedAbstracts"
       );
-      await addDoc(deniedAttendeesCollection, { ...userData });
+      await addDoc(deniedAttendeesCollection, userData);
+
+      // Prepare email parameters
       const templateParams = {
         from_name: user.displayName,
         from_email: user.email,
@@ -191,6 +204,8 @@ const AllUserProvider = ({ children }) => {
         event_id: id,
         message: userData.reviewerComment,
       };
+
+      // Send the email notification
       await emailjs.send(
         import.meta.env.VITE_REJECTED_SERVICE_ID,
         import.meta.env.VITE_REJECTED_TEMPLATE_ID,
@@ -199,8 +214,16 @@ const AllUserProvider = ({ children }) => {
           publicKey: import.meta.env.VITE_EMAIL_PUBLIC_KEY,
         }
       );
+
+      // Delete the file associated with the user if it exists
+      if (userData.fileUrl) {
+        const fileRef = ref(storage, userData.fileUrl);
+        await deleteObject(fileRef);
+      }
+
       // Remove user from the attendees collection
       await deleteDoc(userRef);
+
       toast.error("User denied successfully!", toastConfig);
     } catch (error) {
       console.error("Error denying user:", error);
