@@ -1,10 +1,4 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-// RegisterContext.js
-
-// import { useUser } from "@clerk/clerk-react";
-import { useState, useEffect, useContext, createContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useContext, createContext } from "react";
 import { database, storage, ref } from "../../../firebase";
 import {
   addDoc,
@@ -13,17 +7,13 @@ import {
   getDoc,
   getDocs,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getDownloadURL, uploadBytes } from "firebase/storage";
-import { PaystackButton } from "react-paystack";
 import randomNumber from "random-number";
-
 import { useGlobalContext } from "../../context";
-import emailjs from "@emailjs/browser";
 
 const toastConfig = {
   position: "bottom-center",
@@ -118,25 +108,6 @@ const RegisterProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    // Check if all required fields are filled
-    const isFormFilled =
-      formData.firstName !== "" &&
-      formData.lastName !== "" &&
-      formData.email !== "" &&
-      formData.streetAddress !== "" &&
-      formData.city !== "" &&
-      formData.gender !== "" &&
-      formData.phone !== "" &&
-      formData.role !== "" &&
-      formData.state !== "" &&
-      formData.country !== "" &&
-      formData.abstractTitle !== "" &&
-      formData.mainAuthor !== "" &&
-      formData.authorType !== "" &&
-      file !== null;
-  }, [formData, file]);
-
   const handleFileInputChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -188,8 +159,26 @@ const RegisterProvider = ({ children }) => {
         const attendeesCollectionRef = collection(eventDocRef, "attendees");
         let fileUrl = null;
         if (formData.role === "presenter" && file) {
+          // Validate file type
+          const validFileTypes = [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          ];
+          if (!validFileTypes.includes(file.type)) {
+            toast.error("Please upload a DOC or PDF file.", toastConfig);
+            setIsSubmitting(false);
+            return;
+          }
           const storageRef = ref(storage, `abstractFile/${file.name}`);
-          const fileSnapshot = await uploadBytes(storageRef, file);
+          const metadata = {
+            customMetadata: {
+              userId: user.uid,
+              email: user.email,
+            },
+          };
+          const fileSnapshot = await uploadBytes(storageRef, file, metadata);
+
           fileUrl = await getDownloadURL(fileSnapshot.ref);
         }
 
@@ -215,7 +204,7 @@ const RegisterProvider = ({ children }) => {
           attendeeData.disabilities = "none";
         }
         if (formData.authorType === "main") {
-          attendeeData.mainAuthor = "none";
+          attendeeData.mainAuthor = user.displayName;
         }
 
         // Check if the user is a participant
@@ -277,7 +266,6 @@ const RegisterProvider = ({ children }) => {
     setFileInputDisabled,
     isSubmitting,
     setIsSubmitting,
-
     eventPrices,
     handleInputChange,
     handleFileInputChange,
