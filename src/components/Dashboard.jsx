@@ -82,21 +82,21 @@ export default function DashboardPage({ userType }) {
         </div>
       </header>
 
-      <div className="w-4/6 mx-auto mt-8">
+      <div className="w-4/6 mx-auto my-8">
         {/* Search Input */}
-        <div className="mb-8">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for an event"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-          />
-        </div>
         {loading ? (
           <Loading />
         ) : (
           <>
+            <div className="mb-8">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for an event"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+            </div>
             {filteredEvents.length === 0 ? (
               <div className="text-center text-gray-500">No events found.</div>
             ) : (
@@ -104,10 +104,12 @@ export default function DashboardPage({ userType }) {
                 {currentEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="w-full bg-white rounded-md shadow-md overflow-hidden capitalize"
+                    className="w-full bg-white rounded-md shadow-md overflow-hidden capitalize flex flex-col justify-between"
                   >
-                    <div className="p-6">
-                      <h2 className="text-2xl font-bold mb-4">{event.title}</h2>
+                    <div className="p-6 flex-grow">
+                      <h2 className="text-2xl font-bold mb-4 min-h-[3rem]">
+                        {event.title}
+                      </h2>
                       <p className="text-gray-700">
                         <span className="font-bold">Date:</span> {event.date}
                       </p>

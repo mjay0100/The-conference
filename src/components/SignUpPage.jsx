@@ -40,6 +40,7 @@ function SignUpPage() {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         toast.error("Please enter a valid email address.", toastConfig);
+        setSigningUp(false);
         return;
       }
       if (formData.password.length < 8) {
@@ -47,6 +48,7 @@ function SignUpPage() {
           "Password must be at least 8 characters long.",
           toastConfig
         );
+        setSigningUp(false);
         return;
       }
 
@@ -124,7 +126,7 @@ function SignUpPage() {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
     } finally {
-      setSigningUp(false); // Set signingUp state to false when sign-up process ends
+      setSigningUp(false);
     }
   };
 
