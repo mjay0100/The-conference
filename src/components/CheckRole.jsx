@@ -12,9 +12,12 @@ const CheckRole = () => {
   // const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
   const navigate = useNavigate();
   const { user } = useGlobalContext();
-  if (!user) {
-    navigate("/sign-in");
-  }
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/sign-in");
+    }
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

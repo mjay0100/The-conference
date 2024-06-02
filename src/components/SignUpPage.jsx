@@ -77,7 +77,7 @@ function SignUpPage() {
         lastName: formData.lastName,
         role: "user", // Default role
         userId: userCredential.user.uid,
-        profileImageUrl,
+        photoURL: profileImageUrl,
       });
 
       navigate("/user-dashboard");
@@ -253,7 +253,7 @@ function SignUpPage() {
                   type="file"
                   id="profileImage"
                   onChange={handleChange}
-                  required
+                  // required
                   className="form-input"
                 />
               </div>
