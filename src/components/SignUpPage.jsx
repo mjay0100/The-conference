@@ -113,6 +113,7 @@ function SignUpPage() {
             userCredential.user.displayName?.split(" ").slice(1).join(" ") ||
             "",
           role: "user",
+          photoURL: userCredential.user.photoURL,
           userId: userCredential.user.uid, // Save the user ID
         });
       }

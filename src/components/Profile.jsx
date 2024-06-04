@@ -30,7 +30,6 @@ const toastConfig = {
 };
 const UserProfile = () => {
   const { user } = useGlobalContext();
-  console.log("Koca: user ", user.uid);
   const navigate = useNavigate();
   const handleSignOut = async () => {
     try {
@@ -137,6 +136,7 @@ const UserProfile = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   name="email"
                   required
+                  autoComplete="email"
                   className="form-input"
                 />
               </div>

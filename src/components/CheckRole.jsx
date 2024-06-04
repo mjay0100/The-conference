@@ -17,7 +17,7 @@ const CheckRole = () => {
     if (!user) {
       navigate("/sign-in");
     }
-  }, [user]);
+  }, [navigate, user]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -38,7 +38,7 @@ const CheckRole = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const authorizeUser = (role) => {
     if (window.location.pathname.includes("dashboard")) {

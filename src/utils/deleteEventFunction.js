@@ -60,6 +60,8 @@ const deleteEvent = async (id, navigate, setDeleting) => {
       navigate("/admin-dashboard");
     }, 3000);
   } catch (error) {
+    toast.error("Error deleting document", toastConfig);
+
     console.error("Error deleting document:", error);
     setDeleting(false);
   }
