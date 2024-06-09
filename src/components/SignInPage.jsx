@@ -99,7 +99,26 @@ function SignInPage() {
       setSigningIn(true); // Set signingIn state to true when sign-in process starts
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
-      await checkUserRoleAndRedirect(userCredential.user.uid);
+      const userId = userCredential.user.uid;
+      const userRef = doc(database, "users", userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          email: userCredential.user.email,
+          firstName: userCredential.user.displayName.split(" ")[0],
+          lastName: userCredential.user.displayName
+            .split(" ")
+            .slice(1)
+            .join(" "),
+          photoURL: userCredential.user.photoURL,
+          role: "user", // Default role
+          userId: userId,
+        });
+      }
+
+      // Redirect the user based on their role
+      await checkUserRoleAndRedirect(userId);
     } catch (error) {
       console.error("Error signing in with Google:", error.message);
       // Optionally handle errors, e.g., show error message to user
