@@ -36,7 +36,8 @@ const editEvent = () => {
     theme: "",
     subThemes: "", // Split subThemes by commas and trim whitespace
     keynoteSpeaker: "",
-    price: 0,
+    participantPrice: 0,
+    presenterPrice: 0,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +70,8 @@ const editEvent = () => {
             theme: eventData.theme,
             subThemes: eventData.subThemes, // Split subThemes by commas and trim whitespace
             keynoteSpeaker: eventData.keynoteSpeaker,
-            price: eventData.price,
+            participantPrice: eventData.participantPrice,
+            presenterPrice: eventData.presenterPrice,
           });
         } else {
           console.error("Event not found");
@@ -124,10 +126,11 @@ const editEvent = () => {
         description: formData.description,
         date: formData.date,
         totalParticipants: formData.totalParticipants,
-        theme: formData.theme, // Add theme field
+        theme: formData.theme,
         subThemes: subThemesArray,
         keynoteSpeaker: formData.keynoteSpeaker,
-        price: formData.price,
+        participantPrice: formData.participantPrice,
+        presenterPrice: formData.presenterPrice,
         // Add other fields as needed
       });
 
@@ -313,20 +316,44 @@ const editEvent = () => {
                 </div>
                 <div className="sm:col-span-3">
                   <label
-                    htmlFor="price"
+                    htmlFor="participantPrice"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Price
+                    participant Price
                   </label>
                   <div className="mt-2">
                     <input
                       required
                       type="number"
-                      name="price"
-                      value={formData.price}
+                      name="participantPrice"
+                      value={formData.participantPrice}
                       onChange={handleInputChange}
-                      id="price"
-                      autoComplete="price"
+                      id="participantPrice"
+                      autoComplete="participantPrice"
+                      step={100}
+                      min={0}
+                      className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="presenterPrice"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    presenter Price
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      required
+                      type="number"
+                      name="presenterPrice"
+                      value={formData.presenterPrice}
+                      onChange={handleInputChange}
+                      id="presenterPrice"
+                      autoComplete="presenterPrice"
+                      step={100}
+                      min={0}
                       className="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
                   </div>

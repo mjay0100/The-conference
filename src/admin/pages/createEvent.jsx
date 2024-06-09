@@ -182,28 +182,6 @@ const createEvent = () => {
                 </div>
                 <div className="sm:col-span-2">
                   <label
-                    htmlFor="presenterPrice"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Presenter Price (Naira)
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      required
-                      type="number"
-                      name="presenterPrice"
-                      value={formData.presenterPrice}
-                      onChange={handleInputChange}
-                      id="presenterPrice"
-                      autoComplete="presenterPrice"
-                      className="form-input"
-                      placeholder="N"
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label
                     htmlFor="participantPrice"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
@@ -219,6 +197,31 @@ const createEvent = () => {
                       id="participantPrice"
                       autoComplete="participantPrice"
                       className="form-input"
+                      step={100}
+                      min={0}
+                      placeholder="N"
+                    />
+                  </div>
+                </div>
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="presenterPrice"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Presenter Price (Naira)
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      required
+                      type="number"
+                      name="presenterPrice"
+                      value={formData.presenterPrice}
+                      onChange={handleInputChange}
+                      id="presenterPrice"
+                      autoComplete="presenterPrice"
+                      className="form-input"
+                      step={100}
+                      min={0}
                       placeholder="N"
                     />
                   </div>
