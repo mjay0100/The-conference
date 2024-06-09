@@ -95,11 +95,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/admin-dashboard/:id/edit",
-            element: (
-              <CreateEventProvider>
-                <EditEvent />
-              </CreateEventProvider>
-            ),
+            element: <EditEvent />,
           },
           {
             path: "/admin-dashboard/create-event",
