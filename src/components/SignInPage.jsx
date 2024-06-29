@@ -20,47 +20,17 @@ const toastConfig = {
   theme: "light",
 };
 
-function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [signingIn, setSigningIn] = useState(false); // State to track sign-in process
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (auth.currentUser) {
-      checkUserRoleAndRedirect(auth.currentUser.uid);
-    }
-  }, []);
-
-  const checkUserRoleAndRedirect = async (userId) => {
-    const userDoc = await getDoc(doc(database, "users", userId));
-    if (userDoc.exists()) {
-      const { role } = userDoc.data();
-      switch (role) {
-        case "admin":
-          navigate("/admin-dashboard");
-          break;
-        case "reviewer":
-          navigate("/reviewer-dashboard");
-          break;
-        case "user":
-          navigate("/user-dashboard");
-          break;
-        default:
-          navigate("/user-dashboard");
-          break;
-      }
-    }
-  };
+function useSignIn() {
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSignIn = async (event) => {
     event.preventDefault();
     try {
-      setSigningIn(true); // Set signingIn state to true when sign-in process starts
+      setIsLoading(true); // Set signingIn state to true when sign-in process starts
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         toast.error("Please enter a valid email address.", toastConfig);
-        setSigningIn(false);
+        setIsLoading(false);
         return; // Stop the function if the email is not valid
       }
       if (password.length < 8) {
@@ -68,7 +38,7 @@ function SignInPage() {
           "Password must be at least 8 characters long.",
           toastConfig
         );
-        setSigningIn(false);
+        setIsLoading(false);
         return;
       }
 
@@ -90,13 +60,13 @@ function SignInPage() {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
     } finally {
-      setSigningIn(false); // Set signingIn state to false when sign-in process ends
+      setIsLoading(false); // Set signingIn state to false when sign-in process ends
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      setSigningIn(true); // Set signingIn state to true when sign-in process starts
+      setIsLoading(true); // Set signingIn state to true when sign-in process starts
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       const userId = userCredential.user.uid;
@@ -128,13 +98,60 @@ function SignInPage() {
         toast.error(`Error signing in: ${error.message}`, toastConfig);
       }
     } finally {
-      setSigningIn(false);
+      setIsLoading(false);
     }
   };
 
+  const checkUserRoleAndRedirect = async (userId) => {
+    const userDoc = await getDoc(doc(database, "users", userId));
+    if (userDoc.exists()) {
+      const { role } = userDoc.data();
+      switch (role) {
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+        case "reviewer":
+          navigate("/reviewer-dashboard");
+          break;
+        case "user":
+          navigate("/user-dashboard");
+          break;
+        default:
+          navigate("/user-dashboard");
+          break;
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      checkUserRoleAndRedirect(auth.currentUser.uid);
+    }
+  }, []);
+
+  /**
+   * 
+   * @param {*} type "GOOGLE" | "EMAIL" 
+   * @returns 
+   */
+  const mutate = (type) => {
+    if (type === "GOOGLE") {
+      return handleGoogleSignIn
+    } else if (type === "EMAIL") {
+      return handleEmailSignIn
+    }
+  }
+
+  return { mutate, isLoading }
+}
+
+function SignInPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { mutate, isLoading } = useSignIn()
+
   return (
-    <>
-      {/* // tailwind */}
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <ToastContainer />
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -149,7 +166,7 @@ function SignInPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={handleEmailSignIn} className="space-y-6">
+          <form onSubmit={(e) => mutate("EMAIL")(email, password)} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -193,20 +210,20 @@ function SignInPage() {
             <div>
               <button
                 type="submit"
-                disabled={signingIn} // Disable the button when signingIn is true
+                disabled={isLoading} // Disable the button when signingIn is true
                 className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
-                  signingIn ? "opacity-50 cursor-not-allowed" : ""
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {signingIn ? "Signing In..." : "Sign in"}
+                {isLoading ? "Signing In..." : "Sign in"}
               </button>
             </div>
           </form>
           <div className="flex items-center justify-center  dark:bg-gray-800 mt-5">
             <button
               className="px-4 py-2  flex gap-2 b rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150 w-full justify-center"
-              onClick={handleGoogleSignIn}
-              disabled={signingIn} // Disable the button when signingIn is true
+              onClick={mutate("GOOGLE")}
+              disabled={isLoading} // Disable the button when signingIn is true
             >
               <img
                 className="w-6 h-6"
@@ -219,7 +236,6 @@ function SignInPage() {
           </div>
         </div>
       </div>
-    </>
   );
 }
 
